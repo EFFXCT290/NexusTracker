@@ -1,64 +1,33 @@
-version: "3.9"
 services:
-  traefik:
-    image: "traefik:v2.5"
-    container_name: "sq_traefik"
-    command:
-      - "--api.insecure=true"
-      - "--providers.file=true"
-      - "--providers.file.filename=/config/traefik.yml"
-      - "--entrypoints.webinsecure.address=:80"
-      - "--entrypoints.web.address=:443"
-      - "--entryPoints.web.proxyProtocol.insecure"
-      - "--entryPoints.web.forwardedHeaders.insecure"
-      - "--certificatesresolvers.tlsresolver.acme.email=email@example.com"
-      - "--certificatesresolvers.tlsresolver.acme.storage=/letsencrypt/acme.json"
-      - "--certificatesresolvers.tlsresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.tlsresolver.acme.httpchallenge.entrypoint=webinsecure"
+  nginx:
+    image: "nginx:latest"             # Use the latest Nginx image
+    container_name: "sq_nginx"        # Give the container a name
+    restart: always                  # Restart the container if it crashes
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "80:80"                      # Map port 80 on the host to port 80 in the container
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - ./letsencrypt:/letsencrypt
-      - ./traefik.yml:/config/traefik.yml
-#  nginx:
-#    image: "nginx:latest"
-#    container_name: "sq_nginx"
-#    restart: always
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./nginx.conf:/etc/nginx/nginx.conf
-  database:
-    container_name: sq_mongodb
-    image: mongo:6.0
-    ports:
-      - "127.0.0.1:27017:27017"
-    volumes:
-      - ./data:/data/db
+      - ./nginx.conf:/etc/nginx/nginx.conf # Mount your Nginx configuration file
+      
   api:
-    container_name: sq_api
-    image: ghcr.io/tdjsnelling/sqtracker-api:latest
+    container_name: sq_api           # Name for the API container
+    image: ghcr.io/tdjsnelling/sqtracker-api:latest  # Use the latest API image
     ports:
-      - "127.0.0.1:3001:3001"
+      - "3001:3001"                  # Map port 3001
     volumes:
-      - type: bind
-        source: ./config.js
-        target: /sqtracker/config.js
-    depends_on:
-      - database
+      - type: bind                 # Use a bind mount for the configuration file
+        source: ./config.js         # Path to your config.js file on the host
+        target: /sqtracker/config.js # Path to the config file within the container
+        
   client:
-    container_name: sq_client
-    image: ghcr.io/tdjsnelling/sqtracker-client:latest
+    container_name: sq_client        # Name for the client container
+    image: ghcr.io/tdjsnelling/sqtracker-client:latest # Use the latest client image
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"                  # Map port 3000
     volumes:
-      - type: bind
-        source: ./config.js
-        target: /sqtracker/config.js
-      # - ./favicon.png:/sqtracker/public/favicon.png
-      # - ./favicon.ico:/sqtracker/public/favicon.ico
-    depends_on:
+      - type: bind                 # Use a bind mount for the configuration file
+        source: ./config.js         # Path to your config.js file on the host
+        target: /sqtracker/config.js # Path to the config file within the container
+    # - ./favicon.png:/sqtracker/public/favicon.png  # Optional: Mount favicon (uncomment if needed)
+    # - ./favicon.ico:/sqtracker/public/favicon.ico  # Optional: Mount favicon (uncomment if needed)
+    depends_on:                     # Ensure the client starts *after* the API
       - api
