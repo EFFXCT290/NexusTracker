@@ -82,13 +82,69 @@ The HTTP proxy allows the client, API, and BitTorrent tracker to all be accessib
 
 An Nginx config file is provided and the `docker-compose.yml` file contains an Nginx block 
 
-### Deploying with Docker compose
+### Deploying The Tracker
+First you should make the MongoDB DataBase.
+Here is a docker-compose.yml for the MongoDB DataBase
+```bash
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/MongoDB:/data/db
+    restart: always # Automatically restart the container if it crashes
+    environment: #optional configuration
+      MONGO_INITDB_ROOT_USERNAME: "root" #set root username
+      MONGO_INITDB_ROOT_PASSWORD: "PS5pl@yer72@" #set root password
+    command: [--auth]  # This is ESSENTIAL for authentication
+```
+Next You should check if the MongoDB is working by going to `ipaddress:27017`
 
-The sqtracker platform is designed to be deployed via Docker. Once a configuration file is created, deploying is as simple as running `docker compose up -d` at the root of the project.
+After you check is working mongosh into it using
+```bash
+mongosh -u [username set on docker-compose.yml] 
+```
+Then type your password set on ```docker-compose.yml``` and you should be in
 
-If you change the name of any services in `docker-compose.yml`, you will also need to update the relevant host names in your `config.js`
+Then create the DataBase
+```bash
+use sqtracker
+```
+After that create the user that will be in charge of that DB
+```bash
+db.createUser({
+  user: "username",
+  pwd: "password",
+  roles: [{ role: "dbOwner", db: "sqtracker" }]
+})
+```
+After that is done check the users. The user you just created should appear.
+```bash
+show users
+```
+Then docker exec into the mongodb container
+```bash
+docker exec -it "containerid" bash
+```
+Update the container and install nano
+```bash
+apt update && apt install nano
+```
+CD into the directory /etc and then nano into mongod.conf.orig file
+```bash
+sudo nano /etc/mongod.conf
+```
+Then edit the conf file in the bind address which says 127.0.0.1 to 0.0.0.0 to make the DB available remotely and in the `security:` section add `  authorization: enabled` under it. It should look like this
+```bash
+security:
+  authorization: enabled
+```
+After that you have successfuly made a mongoDB database. Restart the container to commit the changes and you are done with MongoDB
 
-sqtracker is reasonably light-weight, but you should still invest in a VPS with decent resources if you want to run a fast and performant tracker.
+After you have the MongoDB made Update the config.js file with the preferences you want.
+
+And that's it use `docker compose up -d` to run the `docker-compose.yml` and you can visit your new tracker at `ipaddress:80` 
 
 ## Adding a translation
 
