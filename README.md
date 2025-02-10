@@ -46,20 +46,11 @@ Please join the [Discord server](https://discord.gg/BEGXEk29Up) for support and 
 * Tracker appearance
   * Configurable theme / CSS
   
-## Roadmap
-
-The roadmap is still being expanded.
-
-* Forum support & direct messages
-* Better profiles (avatar, bio etc.)
-* Premoderation option
-* Anti-cheat
-  
 ## Configuration
 
 All configuration is provided via a single JavaScript file named `config.js`. This file must export an object containing 2 keys: `envs` and `secrets`.
 
-An example configuration can be found in `config.example.js`. This file contains examples and explanations for each config value.
+The configuration can be found in `config.js`. This file contains examples and explanations for each config value.
 
 If your configuration is not valid, sqtracker will fail to start.
 
@@ -89,26 +80,15 @@ The sqtracker client service provides the modern, responsive web interface that 
 
 The HTTP proxy allows the client, API, and BitTorrent tracker to all be accessible via a single endpoint.
 
-Traefik is recommended and is configured by default. An Nginx config file is also provided for those that prefer it and the `docker-compose.yml` file contains an Nginx block that can be enabled. 
+An Nginx config file is provided and the `docker-compose.yml` file contains an Nginx block 
 
 ### Deploying with Docker compose
 
 The sqtracker platform is designed to be deployed via Docker. Once a configuration file is created, deploying is as simple as running `docker compose up -d` at the root of the project.
 
-To get HTTPS working, you will need to change a few values:
-
-* In `docker-compose.yml`: `--certificatesresolvers.tlsresolver.acme.email=` needs to have a valid email address.
-* In `traefik.yml`: 2 instances of `` Host(`example.com`) `` need to contain your domain name.
-
-If you change the name of any services in `docker-compose.yml`, you will also need to update the relevant host names in your `config.js` and `traefik.yml` files.
+If you change the name of any services in `docker-compose.yml`, you will also need to update the relevant host names in your `config.js`
 
 sqtracker is reasonably light-weight, but you should still invest in a VPS with decent resources if you want to run a fast and performant tracker.
-
-### Deploying with a PaaS platform
-
-Alternatively, you can deploy each service individually on a PaaS cloud platform such as [Northflank](https://northflank.com).
-
-You will need to deploy each of the 4 components listed above. The Docker images for the client and API services are published in this repository.
 
 ## Adding a translation
 
@@ -170,10 +150,6 @@ Report
 Pull requests are welcome! If you fork sqtracker and think you have made some improvements, please open a pull request so other users deploying sqtracker from this repository can also get the benefits.
 
 Please see the [CONTRIBUTING](./CONTRIBUTING.md) document for guidance on code style etc.
-
-## Donations
-
-A lot of hard work goes into building and maintaining sqtracker. If you're feeling kind, my PayPal link is in the GitHub "Sponsor this project" section. If you would prefer a different method, please reach out to me on Discord.
 
 ## License
 
