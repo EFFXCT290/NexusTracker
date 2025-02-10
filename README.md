@@ -1,6 +1,7 @@
 # ■ sqtracker
 
 [![License GPLv3](https://badgen.net/badge/license/GPLv3/blue)](./LICENSE)
+
 sqtracker is a modern private BitTorrent tracker platform.
 
 It implements all of the features required to run a private (or public) tracker and does not focus on any one specific type of content. It is suitable for running a tracker site of any kind.
