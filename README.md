@@ -91,8 +91,8 @@ services:
       - /home/MongoDB:/data/db
     restart: always # Automatically restart the container if it crashes
     environment: #optional configuration
-      MONGO_INITDB_ROOT_USERNAME: "root" #set root username
-      MONGO_INITDB_ROOT_PASSWORD: "PS5pl@yer72@" #set root password
+      MONGO_INITDB_ROOT_USERNAME: "root_username" #set root username
+      MONGO_INITDB_ROOT_PASSWORD: "root_password" #set root password
     command: [--auth]  # This is ESSENTIAL for authentication
 ```
 Next You should check if the MongoDB is working by going to `ipaddress:27017`
