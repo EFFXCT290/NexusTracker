@@ -104,7 +104,7 @@ module.exports = {
     SQ_DISABLE_EMAIL: false,
 
     // The email address that emails will be sent from.
-    SQ_MAIL_FROM_ADDRESS: "Email",
+    SQ_MAIL_FROM_ADDRESS: "changeme@example.com",
 
     // SMTP server settings for sending emails:
 
@@ -132,7 +132,7 @@ module.exports = {
     // Credentials for authenticating with your SMTP server:
 
     // The username for your SMTP server.
-    SQ_SMTP_USER: "Email",
+    SQ_SMTP_USER: "chnageme@example.com",
 
     // The password for your SMTP server.
     SQ_SMTP_PASS: "Email_Password_or_app_password",
