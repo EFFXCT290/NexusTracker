@@ -48,9 +48,9 @@ module.exports = {
     // For each category, list the allowed sources (e.g., "BluRay", "WebDL").
     SQ_TORRENT_CATEGORIES: {
       Movies: ["BluRay", "WebDL", "HDRip", "WebRip", "DVD", "Cam"],
-      TV:,
-      Music:,
-      Books:,
+      TV[]:,
+      Music[]:,
+      Books[]:,
     },
 
     // Configure bonus points:
