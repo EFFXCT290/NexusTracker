@@ -48,6 +48,6 @@ export const cleanupOldProgressRecords = async () => {
 
     console.log(`[sq] Cleaned up ${result.deletedCount} inactive peer records while preserving all user stats and ratios`);
   } catch (error) {
-    console.error('[sq] Error cleaning up peer progress records:', error);
+    console.error('[nx] Error cleaning up peer progress records:', error);
   }
 }; 
