@@ -98,6 +98,10 @@ docker-compose up -d
 - Apply The Custom NGINX Configuration and Click Save
   <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%203.png">
 
+- Now you have to choose between these two nginx configs
+- The first one is for http 
+- The second one is for https (If you select the second one you need to setup a domain name and ssl in npm!)
+- DO NOT ENABLE FORCE SSL IN ANY OF THE TWO! AS IT IS AUTOMATICALLY ENABLED IN THE CONFIG!
 ```bash
 location / {
     proxy_pass http://nexus_client:3000;
@@ -132,6 +136,47 @@ location /sq/ {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Host $server_name;
     proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+```bash
+location / {
+    proxy_pass http://nexus_client:3000;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Ssl on;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+
+location /api/ {
+    rewrite /api/(.*) /$1 break;
+    proxy_pass http://nexus_api:3001;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Ssl on;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+
+location /sq/ {
+    proxy_pass http://nexus_api:3001;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Ssl on;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 }
