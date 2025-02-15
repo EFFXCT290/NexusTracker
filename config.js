@@ -14,7 +14,7 @@ module.exports = {
     // If only "primary" is specified, the default light and dark themes will be used but with your main brand colour.
     // If the other values are specified, the fully custom theme will be used and not the default light/dark.
     SQ_CUSTOM_THEME: {
-      primary: "#0096c7",
+      primary: "#f45d48",
       background: "#1f2023", // Page background colour
       sidebar: "#27282b",    // A secondary background colour, used for sidebar, infoboxes etc.
       border: "#303236",     // Border colour
@@ -76,18 +76,18 @@ module.exports = {
     // Default site locale. See `client/locales/index.js` for available options.
     SQ_SITE_DEFAULT_LOCALE: "en",
 
-    // The URL of your tracker site. 
-    //If running in VPS it should be `http://ipaddress:3000`. 
-    // For local development, this should be `http://127.0.0.1:3000`.
-    SQ_BASE_URL: "http://127.0.0.1:80",
+    // The URL of your tracker site.
+    // This configuration will work regardless of HTTP or HTTPS Protocol
+    // For local development, this should be http://127.0.0.1 or `http://ipaddress` if running in VPS
+    SQ_BASE_URL: "http://ipaddress", 
 
-    // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`. 
-    // If running in VPS it should be `http://ipaddress:3001` or `http://ipaddress/api`. 
-    // For local development, this should be `http://127.0.0.1:3001`.
-    SQ_API_URL: "http://127.0.0.1:3001",
+    // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`.
+    // This configuration will worl regardless of HTTP or HTTPS Protocol
+    // For local development, this should be `http://127.0.0.1:3001` or `http://ipaddress/api` if running in VPS
+    SQ_API_URL: "http://ipaddress/api",
 
-    // The URL of your MongoDB server. Under the recommended setup, it should be `mongodb://nx_mongodb/nexustracker`.
-    // For local development, this should be `mongodb://127.0.0.1/nexustracker`.
+    // The URL of your MongoDB server.
+    // You will need a separate container for the MongoDB (This is provided in the Readme)
     SQ_MONGO_URL: "mongodb://username:password@ipaddress:27017/nexustracker",
 
     // Disables sending of any emails and removes the need for an SMTP server.
@@ -114,10 +114,10 @@ module.exports = {
   },
   secrets: {
     // A secret value to sign tokens with. Should be long and random.
-    SQ_JWT_SECRET: "long_40_char_code",
+    SQ_JWT_SECRET: "long_char_40_code",
 
     // A secret value to verify server requests with. Should be long and random, and different to the JWT secret.
-    SQ_SERVER_SECRET: "long_40_char_code",
+    SQ_SERVER_SECRET: "long_char_40_code",
 
     // The email address to use for the initial admin user.
     // Must be valid, you will need to verify.
