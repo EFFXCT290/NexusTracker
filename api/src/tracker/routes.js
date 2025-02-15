@@ -23,77 +23,111 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
     params.httpReq = req;
     params.httpRes = res;
 
+    const userId = req.originalUrl.split("/")[2];
+    const user = await User.findOne({ uid: userId }).lean();
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    params.user = user;
     const now = new Date();
     
-    // Find all progress records for this user/torrent combination
-    const allUserProgress = await Progress.find({
-      userId: params.user._id,
+    // Find previous progress record
+    const prevProgressRecord = await Progress.findOne({
+      userId: user._id,
+      peerId: params.peerId,
       infoHash: params.infoHash,
     }).lean();
 
-    // Calculate total progress across all peers
-    const totalUploaded = allUserProgress.reduce((sum, record) => 
-      sum + (record.uploaded?.total || 0), 0);
-    const totalDownloaded = allUserProgress.reduce((sum, record) => 
-      sum + (record.downloaded?.total || 0), 0);
+    // Calculate deltas safely
+    const uploaded = Number(params.uploaded) || 0;
+    const downloaded = Number(params.downloaded) || 0;
+    const uploadDeltaSession = Math.max(0, uploaded - (prevProgressRecord?.uploaded?.session || 0));
+    const downloadDeltaSession = Math.max(0, downloaded - (prevProgressRecord?.downloaded?.session || 0));
 
     // Update current peer's progress
     await Progress.findOneAndUpdate(
-      { userId: params.user._id, peerId: params.peerId, infoHash: params.infoHash },
+      { userId: user._id, peerId: params.peerId, infoHash: params.infoHash },
       {
         $set: {
-          userId: params.user._id,
+          userId: user._id,
           infoHash: params.infoHash,
+          peerId: params.peerId,
           uploaded: {
-            session: params.uploaded,
-            total: (params.prevProgressRecord?.uploaded?.total ?? 0) + params.uploadDeltaSession,
+            session: uploaded,
+            total: (prevProgressRecord?.uploaded?.total || 0) + uploadDeltaSession,
           },
           downloaded: {
-            session: params.downloaded,
-            total: (params.prevProgressRecord?.downloaded?.total ?? 0) + params.downloadDeltaSession,
+            session: downloaded,
+            total: (prevProgressRecord?.downloaded?.total || 0) + downloadDeltaSession,
           },
-          left: Number(params.left),
+          left: Number(params.left) || 0,
           lastSeen: now,
         },
       },
       { upsert: true }
     );
 
-    // Only clean up truly inactive peers
+    // Calculate totals from all peers
+    const [totals] = await Progress.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          infoHash: params.infoHash,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          uploaded: { $sum: "$uploaded.total" },
+          downloaded: { $sum: "$downloaded.total" },
+        },
+      },
+    ]);
+
+    // Update user's total stats
+    if (totals) {
+      await User.findByIdAndUpdate(user._id, {
+        $set: {
+          uploaded: totals.uploaded || 0,
+          downloaded: totals.downloaded || 0,
+        }
+      });
+    }
+
+    // Clean up inactive peers
     await Progress.deleteMany({
-      userId: params.user._id,
+      userId: user._id,
       infoHash: params.infoHash,
-      lastSeen: { $lt: new Date(now - 24 * 60 * 60 * 1000) }, // 24 hours
-      peerId: { $ne: params.peerId }, // Don't delete current peer
-      'uploaded.session': 0,    // Only delete peers with no active upload
-      'downloaded.session': 0   // Only delete peers with no active download
+      lastSeen: { $lt: new Date(now - 24 * 60 * 60 * 1000) },
+      peerId: { $ne: params.peerId },
+      'uploaded.session': 0,
+      'downloaded.session': 0
     });
 
-    // Update user's total stats if needed
-    await User.findByIdAndUpdate(params.user._id, {
-      $set: {
-        uploaded: totalUploaded,
-        downloaded: totalDownloaded
-      }
-    });
   } catch (err) {
     res.end(
       bencode.encode({
         "failure reason": err.message,
       })
     );
+    return;
   }
+
   onRequest(params, (err, response) => {
     let finalResponse = response;
-    delete finalResponse.action;
     if (err) {
       finalResponse = {
         "failure reason": err.message,
       };
     } else {
       if (action === "announce") {
-        finalResponse["interval"] = 30;
-        finalResponse["min interval"] = 30;
+        finalResponse = {
+          ...finalResponse,
+          "interval": 30,
+          "min interval": 30,
+        };
       }
     }
     res.end(bencode.encode(finalResponse));
