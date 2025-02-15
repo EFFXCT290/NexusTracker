@@ -30,7 +30,7 @@ export const getServerSideProps = async ({ req, res }) => {
         urls.push(`${SQ_BASE_URL}/torrent/${infoHash}`);
       }
     } catch (e) {
-      console.error(`[sq] could not list torrents: ${e}`);
+      console.error(`[nx] could not list torrents: ${e}`);
     }
   }
 
