@@ -14,7 +14,7 @@ module.exports = {
     // If only "primary" is specified, the default light and dark themes will be used but with your main brand colour.
     // If the other values are specified, the fully custom theme will be used and not the default light/dark.
     SQ_CUSTOM_THEME: {
-      primary: "#f45d48",
+      primary: "#0096c7",
       background: "#1f2023", // Page background colour
       sidebar: "#27282b",    // A secondary background colour, used for sidebar, infoboxes etc.
       border: "#303236",     // Border colour
@@ -76,17 +76,19 @@ module.exports = {
     // Default site locale. See `client/locales/index.js` for available options.
     SQ_SITE_DEFAULT_LOCALE: "en",
 
-    // The URL of your tracker site.
+    // The URL of your tracker site. 
+    //If running in VPS it should be `http://ipaddress:3000`. 
     // For local development, this should be `http://127.0.0.1:3000`.
     SQ_BASE_URL: "http://127.0.0.1:80",
 
-    // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`.
+    // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`. 
+    // If running in VPS it should be `http://ipaddress:3000` or `http://ipaddress/api`. 
     // For local development, this should be `http://127.0.0.1:3001`.
     SQ_API_URL: "http://127.0.0.1:3001",
 
     // The URL of your MongoDB server. Under the recommended setup, it should be `mongodb://nx_mongodb/nexustracker`.
     // For local development, this should be `mongodb://127.0.0.1/nexustracker`.
-    SQ_MONGO_URL: "mongodb://TUG:TUG%40%40@129.213.83.107:27017/nexustracker",
+    SQ_MONGO_URL: "mongodb://username:password@ipaddress:27017/nexustracker",
 
     // Disables sending of any emails and removes the need for an SMTP server.
     // Fine for testing, not recommended in production as users will not be able to reset their passwords.
@@ -112,10 +114,10 @@ module.exports = {
   },
   secrets: {
     // A secret value to sign tokens with. Should be long and random.
-    SQ_JWT_SECRET: "ljghdsiulryglyt438959035",
+    SQ_JWT_SECRET: "long_40_char_code",
 
     // A secret value to verify server requests with. Should be long and random, and different to the JWT secret.
-    SQ_SERVER_SECRET: "soifhgdyitetietpe347",
+    SQ_SERVER_SECRET: "long_40_char_code",
 
     // The email address to use for the initial admin user.
     // Must be valid, you will need to verify.
