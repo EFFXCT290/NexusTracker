@@ -14,7 +14,8 @@ A modern, feature-rich BitTorrent tracker platform designed for both private and
 ### 1. Set up MongoDB Database:
 
 Create a \`docker-compose.yml\` for MongoDB:
-\`\`\`yaml
+```bash
+yaml
 services:
   mongodb:
     image: mongo:latest
@@ -27,18 +28,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "root_username" #set root username
       MONGO_INITDB_ROOT_PASSWORD: "root_password" #set root password
     command: [--auth]  # This is ESSENTIAL for authentication
-\`\`\`
+```
 
 Deploy MongoDB and verify:
 1. Start MongoDB: \`docker-compose up -d mongodb\`
 2. Verify it's working by accessing \`ipaddress:27017\`
 3. Connect to MongoDB:
-\`\`\`bash
+```bash
 mongosh -u [username set on docker-compose.yml]
-\`\`\`
+```
 
 Set up the database:
-\`\`\`bash
+```bash
 # Create database
 use nexustracker
 
@@ -48,41 +49,48 @@ db.createUser({
   pwd: "password",
   roles: [{ role: "dbOwner", db: "nexustracker" }]
 })
-
+```
 # Verify user creation
+```bash
 show users
-\`\`\`
+```
 
 Configure remote access:
-\`\`\`bash
 # Access MongoDB container
+```bash
 docker exec -it "containerid" bash
-
+```
 # Install nano
+```bash
 apt update && apt install nano
+```
 
 # Edit MongoDB config
+```bash
 nano /etc/mongod.conf
+```
 
 # Change bind address: 127.0.0.1 → 0.0.0.0
+
 # Add under security section:
+```bash
 security:
   authorization: enabled
-\`\`\`
+```
 
 Restart MongoDB container to apply changes.
 
 ### 2. Configure NexusTracker:
-- Edit \`config.js\` with your preferences
-- Default admin credentials: username \`admin\`, password \`admin\`
+- Edit `config.js` with your preferences
+- Default admin credentials: username `admin`, password `admin`
 - Change admin password immediately after first login
 
 ### 3. Launch NexusTracker:
-\`\`\`bash
+```bash
 docker-compose up -d
-\`\`\`
+```
 
-Visit your tracker at \`http://your-ip:80\`
+Visit your tracker at `http://your-ip:80/`
 
 ## 💫 Core Features
 
@@ -167,11 +175,40 @@ Currently supported languages:
 - Spanish
 - Italian
 
-Want to add your language? Create a new JSON file in \`client/locales/\` with your translations!
+Want to add your language? Create a new JSON file in `client/locales/` with your translations!
 
 ## 📸 Screenshots
 
-[Previous screenshots section remains exactly the same]
+Splash screen
+<img width="1663" alt="splash" src="https://user-images.githubusercontent.com/6264509/218762121-e7800d27-c5f1-4288-ba6e-f33c235b9b27.png">
+
+Home
+<img width="1707" alt="home" src="https://user-images.githubusercontent.com/6264509/218762088-e604d1d6-7f6a-4910-b7ff-500e0e762056.png">
+
+Torrent
+<img width="1707" alt="torrent" src="https://user-images.githubusercontent.com/6264509/218762124-70d00f99-287a-4efa-90ed-47db7a0be39b.png">
+
+Upload
+<img width="1707" alt="upload" src="https://user-images.githubusercontent.com/6264509/218762133-0a359ca0-6a18-4440-80f6-6d28adba1a6f.png">
+
+Categories
+<img width="1707" alt="categories" src="https://user-images.githubusercontent.com/6264509/218762073-b1d42889-2868-414e-af60-9fe75ba48ee1.png">
+
+Profile
+<img width="1663" alt="profile" src="https://user-images.githubusercontent.com/6264509/218762104-238c90ab-c144-42f1-869e-bbae120f556f.png">
+
+Account
+<img width="1663" alt="account" src="https://user-images.githubusercontent.com/6264509/218762053-90667723-db6e-473c-8ae0-11bc635f322e.png">
+
+Announcement
+<img width="1663" alt="announcement" src="https://user-images.githubusercontent.com/6264509/218762065-e91ca084-1f9a-4af5-9232-291d87625c7a.png">
+
+Request
+<img width="1663" alt="request" src="https://user-images.githubusercontent.com/6264509/218762116-38cf1b95-7c76-4476-9276-19f6c77c2c9a.png">
+
+Report
+<img width="1707" alt="report" src="https://user-images.githubusercontent.com/6264509/218762109-b76bd5f1-b333-4d09-9c9a-e2fa87b3c2de.png">
+
 
 ## 🤝 Contributing
 
