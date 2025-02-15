@@ -52,7 +52,7 @@ const createAdminUser = async (mail) => {
       );
     }
 
-    console.log("[sq] created initial admin user");
+    console.log("[nx] created initial admin user");
   }
 };
 
