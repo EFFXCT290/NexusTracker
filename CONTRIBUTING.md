@@ -1,6 +1,6 @@
-# Contributing to sqtracker
+# Contributing to NexusTracker
 
-Contributions to sqtracker are welcome. Trackers are often forked and modified, and ideally any changes and new features make their way upstream so that other users can benefit from them.
+Contributions to NexusTracker are welcome. Trackers are often forked and modified, and ideally any changes and new features make their way upstream so that other users can benefit from them.
 
 ## Code style
 

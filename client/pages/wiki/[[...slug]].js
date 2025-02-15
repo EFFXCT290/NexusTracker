@@ -24,7 +24,7 @@ const sortSlug = (a, b) => {
   return 0;
 };
 
-const Wiki = ({ page, allPages, token, userRole, slug }) => {
+const Wiki = ({ page, allPages = [], token, userRole, slug }) => {
   const [editing, setEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -245,16 +245,16 @@ const Wiki = ({ page, allPages, token, userRole, slug }) => {
             </form>
           )}
         </>
-      ) : allPages.length > 0 ? (
-          <>
-            {allPages.map((p) => (
-                <Link key={`page-${p.slug}`} href={`/wiki${p.slug}`} passHref>
-                  <Text as="a" display="block">
-                    {p.title}
-                  </Text>
-                </Link>
-            ))}
-          </>
+      ) : Array.isArray(allPages) && allPages.length > 0 ? (
+        <>
+          {allPages.map((p) => (
+            <Link key={`page-${p.slug}`} href={`/wiki${p.slug}`} passHref>
+              <Text as="a" display="block">
+                {p.title}
+              </Text>
+            </Link>
+          ))}
+        </>
       ) : (
         <Text>{getLocaleString("wikiThereNothingHereYet")}</Text>
       )}
@@ -280,10 +280,12 @@ const Wiki = ({ page, allPages, token, userRole, slug }) => {
 };
 
 export const getServerSideProps = withAuthServerSideProps(
-  async ({ token, fetchHeaders, isPublicAccess, query: { slug } }) => {
+  async ({ token, fetchHeaders, isPublicAccess, query }) => {
     if (!token && !isPublicAccess) return { props: {} };
 
-    const parsedSlug = slug?.length ? slug.join("/") : "";
+    // Safely handle slug
+    const slug = query.slug || [];
+    const parsedSlug = Array.isArray(slug) ? slug.join("/") : "";
 
     const {
       publicRuntimeConfig: { SQ_API_URL },
@@ -293,31 +295,45 @@ export const getServerSideProps = withAuthServerSideProps(
     const { role } = token ? jwt.verify(token, SQ_JWT_SECRET) : { role: null };
 
     try {
-              let page, allPages;
-        if (parsedSlug.length === 0) {
-          const wikiRes = await fetch(`${SQ_API_URL}/wiki`, {
-            headers: fetchHeaders,
-          });
-          ({ allPages } = await wikiRes.json());
+      let page = null;
+      let allPages = [];
 
-          return {
-            props: {allPages, token, userRole: role, slug: parsedSlug, },
-          };
-      } else {
-        const wikiRes = await fetch(`${SQ_API_URL}/wiki/${parsedSlug}`, {
-          headers: fetchHeaders,
-        });
-        if (wikiRes.status === 403 && (await wikiRes.text()) === "User is banned") {
-          throw "banned";
+      // Always fetch from the same endpoint
+      const wikiRes = await fetch(`${SQ_API_URL}/wiki/${parsedSlug}`, {
+        headers: fetchHeaders,
+      });
+
+      if (wikiRes.status === 403 && (await wikiRes.text()) === "User is banned") {
+        throw "banned";
+      }
+
+      if (wikiRes.ok) {
+        const data = await wikiRes.json();
+        page = data.page || null;
+        allPages = data.allPages || [];
+      }
+
+      return {
+        props: {
+          page,
+          allPages,
+          token,
+          userRole: role,
+          slug: parsedSlug
         }
-        ({ page, allPages } = await wikiRes.json());
-        return {
-          props: { page, allPages, token, userRole: role, slug: parsedSlug },
-        };
-    }
+      };
     } catch (e) {
       if (e === "banned") throw "banned";
-      return { props: { token, userRole: role, slug: parsedSlug } };
+      console.error("Error fetching wiki data:", e);
+      return { 
+        props: { 
+          token, 
+          userRole: role, 
+          slug: parsedSlug,
+          allPages: [],
+          page: null 
+        } 
+      };
     }
   },
   true

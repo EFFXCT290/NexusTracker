@@ -890,3 +890,24 @@ export const listTags = async (req, res, next) => {
     next(e);
   }
 };
+
+function isPngImage(data) {
+  const pngHeader = "data:image/png;base64,";
+  return data.startsWith(pngHeader);
+}
+
+function getImageType(data) {
+  const mimeTypes = {
+    "data:image/png;base64,": "png",
+    "data:image/jpeg;base64,": "jpeg",
+    "data:image/gif;base64,": "gif",
+    "data:image/webp;base64,": "webp"
+  };
+
+  for (const [header, type] of Object.entries(mimeTypes)) {
+    if (data.startsWith(header)) {
+      return type;
+    }
+  }
+  return "jpeg"; // default fallback
+}

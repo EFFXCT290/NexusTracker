@@ -1,5 +1,5 @@
 {
-  "name": "sqtracker",
+  "name": "nexustracker",
   "version": "1.5.0",
   "private": true,
   "license": "GPL-3.0-only",
@@ -8,8 +8,8 @@
     "client"
   ],
   "scripts": {
-    "api:dev": "yarn workspace @sqtracker/api dev",
-    "client:dev": "yarn workspace @sqtracker/client dev",
+    "api:dev": "yarn workspace @nexustracker/api dev",
+    "client:dev": "yarn workspace @nexustracker/client dev",
     "dev": "npm-run-all --parallel api:dev client:dev",
     "lint": "prettier --write --ignore-path=.eslintignore \"**/*.{js,json}\""
   },

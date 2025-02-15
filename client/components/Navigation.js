@@ -298,11 +298,11 @@ const Navigation = ({ isMobile, menuIsOpen, setMenuIsOpen }) => {
         <Text color="grey" fontSize={0}>
           {getLocaleString("poweredBy")}{" "}
           <a
-            href="https://github.com/tdjsnelling/sqtracker"
+            href="https://github.com/EFFXCT290/NexusTracker"
             target="_blank"
             rel="noreferrer"
           >
-            ■ sqtracker
+            ■ NexusTracker
           </a>{" "}
           v{SQ_VERSION}
         </Text>

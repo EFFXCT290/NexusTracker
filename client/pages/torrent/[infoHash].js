@@ -524,9 +524,20 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
     (Number(SQ_MAXIMUM_HIT_N_RUNS) !== -1 &&
       userStats.hitnruns > Number(SQ_MAXIMUM_HIT_N_RUNS));
 
-  function isPngImage(data) {
-    const pngHeader = "data:image/png;base64,";
-    return data.startsWith(pngHeader);
+  function getImageType(data) {
+    const mimeTypes = {
+      "data:image/png;base64,": "png",
+      "data:image/jpeg;base64,": "jpeg",
+      "data:image/gif;base64,": "gif",
+      "data:image/webp;base64,": "webp"
+    };
+
+    for (const [header, type] of Object.entries(mimeTypes)) {
+      if (data.startsWith(header)) {
+        return type;
+      }
+    }
+    return "jpeg"; // default fallback
   }
 
   return (
@@ -677,10 +688,8 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
           </Text>
           <Box
             as="img"
-            src={`data:image/${
-              isPngImage(torrent.poster) ? "png" : "jpeg"
-            };base64,${torrent.poster}`}
-            alt={`Cover image for “${torrent.name}”`}
+            src={`data:image/${getImageType(torrent.poster)};base64,${torrent.poster}`}
+            alt={`Cover image for "${torrent.name}"`}
             width="auto"
             height="auto"
             maxWidth="400px"

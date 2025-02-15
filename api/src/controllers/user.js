@@ -74,7 +74,7 @@ export const register = (mail) => async (req, res, next) => {
         if (!inviter || inviter.banned) {
           res
             .status(403)
-            .send("Inviting user doesn’t exist or has been banned");
+            .send("Inviting user doesn't exist or has been banned");
           return;
         }
       } catch (err) {
@@ -86,101 +86,107 @@ export const register = (mail) => async (req, res, next) => {
     const created = Date.now();
 
     try {
-      const user = await User.findOne({
-        $or: [{ email: req.body.email }, { username: req.body.username }],
+      const { username, email, password } = req.body;
+      
+      // Convert username and email to lowercase before checking
+      const lowercaseUsername = username.toLowerCase();
+      const lowercaseEmail = email.toLowerCase();
+      
+      // Check for existing user with case-insensitive email
+      const existingUserEmail = await User.findOne({
+        email: { $regex: new RegExp(`^${lowercaseEmail}$`, 'i') }
       });
 
-      if (!user) {
-        if (!/^[a-z0-9.]+$/i.test(req.body.username)) {
-          res
-            .status(400)
-            .send("Username can only consist of letters, numbers, and “.”");
-          return;
-        }
+      if (existingUserEmail) {
+        res.status(409).send("Email already registered");
+        return;
+      }
 
-        const hash = await bcrypt.hash(req.body.password, 10);
-        const role = invite?.role || "user";
+      const existingUser = await User.findOne({
+        username: { $regex: new RegExp(`^${lowercaseUsername}$`, 'i') }
+      });
 
-        const newUser = new User({
-          username: req.body.username,
-          email: req.body.email,
-          password: hash,
-          torrents: {},
-          created,
-          role,
-          invitedBy: invite?.invitingUser,
-          remainingInvites: 0,
-          emailVerified: process.env.SQ_DISABLE_EMAIL,
-          bonusPoints: 0,
-          totp: {
-            enabled: false,
+      if (existingUser) {
+        res.status(409).send("An account with that email address or username already exists");
+        return;
+      }
+
+      const hash = await bcrypt.hash(password, 10);
+      const role = invite?.role || "user";
+
+      const newUser = new User({
+        username: lowercaseUsername,
+        email: lowercaseEmail,
+        password: hash,
+        torrents: {},
+        created,
+        role,
+        invitedBy: invite?.invitingUser,
+        remainingInvites: 0,
+        emailVerified: process.env.SQ_DISABLE_EMAIL,
+        bonusPoints: 0,
+        totp: {
+          enabled: false,
+        },
+      });
+
+      newUser.uid = crypto
+        .createHash("sha256")
+        .update(newUser._id.toString())
+        .digest("hex")
+        .slice(0, 10);
+
+      const createdUser = await newUser.save();
+
+      if (!process.env.SQ_DISABLE_EMAIL) {
+        const emailVerificationValidUntil = created + 48 * 60 * 60 * 1000;
+        const emailVerificationToken = jwt.sign(
+          {
+            user: req.body.email,
+            validUntil: emailVerificationValidUntil,
           },
-        });
+          process.env.SQ_JWT_SECRET
+        );
+        await sendVerificationEmail(
+          mail,
+          req.body.email,
+          emailVerificationToken
+        );
+      }
 
-        newUser.uid = crypto
-          .createHash("sha256")
-          .update(newUser._id.toString())
-          .digest("hex")
-          .slice(0, 10);
-
-        const createdUser = await newUser.save();
-
-        if (!process.env.SQ_DISABLE_EMAIL) {
-          const emailVerificationValidUntil = created + 48 * 60 * 60 * 1000;
-          const emailVerificationToken = jwt.sign(
-            {
-              user: req.body.email,
-              validUntil: emailVerificationValidUntil,
-            },
+      if (createdUser) {
+        if (req.body.invite) {
+          const decoded = jwt.verify(
+            req.body.invite,
             process.env.SQ_JWT_SECRET
           );
-          await sendVerificationEmail(
-            mail,
-            req.body.email,
-            emailVerificationToken
+          const { id } = decoded;
+          await Invite.findOneAndUpdate(
+            { _id: id },
+            { $set: { claimed: true } }
+          );
+          await User.findOneAndUpdate(
+            { _id: invite.invitingUser },
+            { $inc: { remainingInvites: -1 } }
           );
         }
 
-        if (createdUser) {
-          if (req.body.invite) {
-            const decoded = jwt.verify(
-              req.body.invite,
-              process.env.SQ_JWT_SECRET
-            );
-            const { id } = decoded;
-            await Invite.findOneAndUpdate(
-              { _id: id },
-              { $set: { claimed: true } }
-            );
-            await User.findOneAndUpdate(
-              { _id: invite.invitingUser },
-              { $inc: { remainingInvites: -1 } }
-            );
-          }
-
-          res.send({
-            token: jwt.sign(
-              {
-                id: newUser._id,
-                username: newUser.username,
-                created,
-                role,
-              },
-              process.env.SQ_JWT_SECRET
-            ),
-            id: createdUser._id,
-            uid: createdUser.uid,
-            username: createdUser.username,
-          });
-        } else {
-          res.status(500).send("User could not be created");
-        }
+        res.send({
+          token: jwt.sign(
+            {
+              id: newUser._id,
+              username: newUser.username,
+              created,
+              role,
+            },
+            process.env.SQ_JWT_SECRET
+          ),
+          id: createdUser._id,
+          uid: createdUser.uid,
+          username: createdUser.username,
+        });
       } else {
-        res
-          .status(409)
-          .send(
-            "An account with that email address or username already exists"
-          );
+        res.status(500).send("User could not be created");
       }
     } catch (e) {
       next(e);
@@ -193,7 +199,8 @@ export const register = (mail) => async (req, res, next) => {
 export const login = async (req, res, next) => {
   if (req.body.username && req.body.password) {
     try {
-      const user = await User.findOne({ username: req.body.username }).lean();
+      const lowercaseUsername = req.body.username.toLowerCase();
+      const user = await User.findOne({ username: lowercaseUsername }).lean();
 
       if (user) {
         if (user.banned) {
@@ -222,7 +229,7 @@ export const login = async (req, res, next) => {
               return;
             } else {
               await User.findOneAndUpdate(
-                { username: req.body.username },
+                { username: lowercaseUsername },
                 { $pull: { "totp.backup": req.body.totp } }
               );
             }
@@ -374,10 +381,17 @@ ${process.env.SQ_BASE_URL}/reset-password/initiate`,
 export const initiatePasswordReset = (mail) => async (req, res, next) => {
   if (req.body.email) {
     try {
-      const user = await User.findOne({ email: req.body.email }).lean();
+      const { email } = req.body;
+      
+      // Convert email to lowercase for lookup
+      const lowercaseEmail = email.toLowerCase();
+      
+      const user = await User.findOne({ 
+        email: { $regex: new RegExp(`^${lowercaseEmail}$`, 'i') }
+      });
 
       if (!user) {
-        res.sendStatus(200);
+        res.status(404).send("User does not exist");
         return;
       }
 
@@ -1067,6 +1081,75 @@ export const getUserBookmarks = (tracker) => async (req, res, next) => {
       tracker,
     });
     res.json(bookmarks);
+  } catch (e) {
+    next(e);
+  }
+};
+
+const checkForDuplicateUsernames = async () => {
+  const users = await User.find({}, 'username');
+  const userMap = new Map();
+  const duplicates = [];
+
+  users.forEach(user => {
+    const lowerUsername = user.username.toLowerCase();
+    if (userMap.has(lowerUsername)) {
+      duplicates.push({
+        original: userMap.get(lowerUsername),
+        duplicate: user.username
+      });
+    } else {
+      userMap.set(lowerUsername, user.username);
+    }
+  });
+
+  return duplicates;
+};
+
+const convertUsernamesToLowercase = async () => {
+  const users = await User.find({});
+  for (const user of users) {
+    await User.findByIdAndUpdate(user._id, {
+      username: user.username.toLowerCase()
+    });
+  }
+};
+
+export const resendVerificationEmail = (mail) => async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      res.status(404).send("User not found");
+      return;
+    }
+
+    if (user.emailVerified) {
+      res.status(400).send("Email already verified");
+      return;
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    
+    await User.findByIdAndUpdate(req.userId, {
+      emailVerificationToken: verificationToken,
+    });
+
+    if (mail) {
+      await mail.sendMail({
+        from: process.env.SQ_SMTP_FROM,
+        to: user.email,
+        subject: `${process.env.SQ_SITE_NAME} - Verify your email address`,
+        text: `Please verify your email address by clicking the following link:\n\n${
+          process.env.SQ_BASE_URL
+        }/verify-email?token=${verificationToken}`,
+        html: `Please verify your email address by clicking the following link:<br><br><a href="${
+          process.env.SQ_BASE_URL
+        }/verify-email?token=${verificationToken}">Verify email address</a>`,
+      });
+    }
+
+    res.sendStatus(200);
   } catch (e) {
     next(e);
   }

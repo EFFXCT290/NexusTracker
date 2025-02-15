@@ -1,8 +1,8 @@
-# ■ sqtracker
+# ■ NexusTracker
 
 [![License GPLv3](https://badgen.net/badge/license/GPLv3/blue)](./LICENSE)
 
-sqtracker is a modern private BitTorrent tracker platform.
+NexusTracker is a modern private BitTorrent tracker platform.
 
 It implements all of the features required to run a private (or public) tracker and does not focus on any one specific type of content. It is suitable for running a tracker site of any kind.
 
@@ -48,25 +48,25 @@ All configuration is provided via a single JavaScript file named `config.js`. Th
 
 The configuration can be found in `config.js`. This file contains examples and explanations for each config value.
 
-If your configuration is not valid, sqtracker will fail to start.
+If your configuration is not valid, NexusTracker will fail to start.
 
 ### The initial admin user
 
-On first start up, sqtracker will create a user named `admin` with the password `admin`. A confirmation email will be sent to the admin email address you specified in your config file. Once logged in for the first time, you should change the admin password immediately. This admin user can be used to send other admin invites (normal accounts cannot send admin invites). This user cannot be deleted/banned.
+On first start up, NexusTracker will create a user named `admin` with the password `admin`. A confirmation email will be sent to the admin email address you specified in your config file. Once logged in for the first time, you should change the admin password immediately. This admin user can be used to send other admin invites (normal accounts cannot send admin invites). This user cannot be deleted/banned.
 
 ## Deploying
 
 ### Components
 
-An sqtracker deployment is made up of 4 separate components. These are:
+An NexusTracker deployment is made up of 4 separate components. These are:
 
-#### 1. The sqtracker API service
+#### 1. The NexusTracker API service
 
-The sqtracker API service handles all actions taken by users (authentication, uploads, searching etc.), implements the BitTorrent tracker specification to handle announces and scrapes, and provides the RSS feed. 
+The NexusTracker API service handles all actions taken by users (authentication, uploads, searching etc.), implements the BitTorrent tracker specification to handle announces and scrapes, and provides the RSS feed. 
 
-#### 2. The sqtracker client service
+#### 2. The NexusTracker client service
 
-The sqtracker client service provides the modern, responsive web interface that users interact with.
+The NexusTracker client service provides the modern, responsive web interface that users interact with.
 
 #### 3. A MongoDB database
 
@@ -105,14 +105,14 @@ Then type your password set on ```docker-compose.yml``` and you should be in
 
 Then create the DataBase
 ```bash
-use sqtracker
+use nexustracker
 ```
 After that create the user that will be in charge of that DB
 ```bash
 db.createUser({
   user: "username",
   pwd: "password",
-  roles: [{ role: "dbOwner", db: "sqtracker" }]
+  roles: [{ role: "dbOwner", db: "nexustracker" }]
 })
 ```
 After that is done check the users. The user you just created should appear.
@@ -150,7 +150,7 @@ To add a new translation in your own language, create a new JSON file with your 
 
 The best place to start is to copy the `en.json` file and work through it, translating each English string.
 
-There is also an [inlang project](https://fink.inlang.com/github.com/tdjsnelling/sqtracker) to aid with translation.
+There is also an [inlang project](https://fink.inlang.com/github.com/EFFXCT290/NexusTracker) to aid with translation.
 
 ### Existing translations
 
@@ -199,7 +199,7 @@ Report
 
 ## Contributing
 
-Pull requests are welcome! If you fork sqtracker and think you have made some improvements, please open a pull request so other users deploying sqtracker from this repository can also get the benefits.
+Pull requests are welcome! If you fork NexusTracker and think you have made some improvements, please open a pull request so other users deploying NexusTracker from this repository can also get the benefits.
 
 Please see the [CONTRIBUTING](./CONTRIBUTING.md) document for guidance on code style etc.
 

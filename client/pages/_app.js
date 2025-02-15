@@ -157,7 +157,7 @@ const Loading = styled(LoaderAlt)`
 const getLocaleString = (locale) => (key) =>
   locales[locale][key] ?? locales.en[key];
 
-const SqTracker = ({ Component, pageProps, initialTheme }) => {
+const NexusTracker = ({ Component, pageProps, initialTheme }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const [theme, setTheme] = useState(initialTheme || "light");
@@ -263,7 +263,7 @@ const SqTracker = ({ Component, pageProps, initialTheme }) => {
   return (
     <>
       <Head>
-        <title>sqtracker</title>
+        <title>nexustracker</title>
         <link rel="shortcut icon" href="/favicon.png" type="image/png" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link
@@ -442,10 +442,10 @@ const SqTracker = ({ Component, pageProps, initialTheme }) => {
   );
 };
 
-SqTracker.getInitialProps = async (appContext) => {
+NexusTracker.getInitialProps = async (appContext) => {
   const { theme } = appContext?.ctx?.req?.cookies || {};
   const appInitialProps = App.getInitialProps(appContext);
   return { initialTheme: theme, ...appInitialProps };
 };
 
-export default SqTracker;
+export default NexusTracker;

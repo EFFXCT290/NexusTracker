@@ -1,140 +1,132 @@
-// This is the configuration file for your torrent tracker site.
-// Copy it to config.js and modify the values to match your desired setup.
+// This is an example configuration file.
+// Copy it to config.js and change each value according to your desired setup.
 
 module.exports = {
   envs: {
     // The name of your tracker site. Maximum 20 characters.
-    SQ_SITE_NAME: "Change My Name",
+    SQ_SITE_NAME: "NexusTracker demo",
 
     // A short description of your tracker site. Maximum 80 characters.
-    SQ_SITE_DESCRIPTION: "Change My Description",
+    SQ_SITE_DESCRIPTION: "A short description for your tracker site",
 
-    // Customize the color theme of your site.
-    // 
-    // - To use the default light and dark themes with your primary brand color, 
-    //   specify only the "primary" color.
-    // - To create a fully custom theme, specify all the colors.
-    // - If no colors are specified, the default light and dark themes will be used.
-    // - MAKE SURE TO USE 6 CHARACTER HEX CODES (ex. #000000) NOT (ex. #000)
+    // A map of custom hex colours to use as the theme of your site.
+    // If not specified, the default light and dark themes will be used.
+    // If only "primary" is specified, the default light and dark themes will be used but with your main brand colour.
+    // If the other values are specified, the fully custom theme will be used and not the default light/dark.
     SQ_CUSTOM_THEME: {
-      primary: "#0e6fc9",        // Your main brand color
-      background: "#1f2023",     // Page background color
-      sidebar: "#27282b",      // Sidebar and infobox background color
-      border: "#303236",        // Border color
-      text: "#f8f8f8",          // Main text color
-      grey: "#aaaaaa",          // Secondary text color
+      primary: "#f45d48",
+      background: "#1f2023", // Page background colour
+      sidebar: "#27282b",    // A secondary background colour, used for sidebar, infoboxes etc.
+      border: "#303236",     // Border colour
+      text: "#f8f8f8",       // Text colour. Should be readable against background and sidebar
+      grey: "#aaaaaa",          // Secondary text colour, used for less important text
     },
 
-    // Control user registration.
-    // - "open": Anyone can register.
-    // - "invite": Users must be invited by an existing user.
-    // - "closed": No one can register.
-    SQ_ALLOW_REGISTER: "invite",
+    // Registration mode. Either "open", "invite" or "closed".
+    // Open: anyone can register.
+    // Invite: must be invited by existing user.
+    // Closed: no one can register.
+    SQ_ALLOW_REGISTER: "open",
 
-    // Allow users to upload torrents anonymously.
-    // (Admins can still see the uploader's identity.)
+    // A boolean value determining whether users can choose to upload anonymously.
+    // Admins can still see who uploaded anonymously, but other users cannot.
     SQ_ALLOW_ANONYMOUS_UPLOADS: false,
 
-    // Set the minimum ratio required for users to download torrents. 
-    // Set to -1 to disable this requirement.
+    // Minimum allowed ratio. Below this users will not be able to download. Set to -1 to disable.
     SQ_MINIMUM_RATIO: 0.75,
 
-    // Set the maximum number of hit-and-runs allowed before a user is blocked from downloading.
-    // A hit-and-run occurs when a user downloads a torrent completely but doesn't seed it back to a 1:1 ratio.
-    // Set to -1 to disable this limit.
-    SQ_MAXIMUM_HIT_N_RUNS: 3,
+    // Maximum allowed hit'n'runs. Above this users will not be allowed to download. Set to -1 to disable.
+    // A user has committed a hit'n'run when a torrent is fully downloaded and not seeded to a 1:1 ratio.
+    SQ_MAXIMUM_HIT_N_RUNS: 1,
 
-    // Define the torrent categories available on your site.
-    // For each category, list the allowed sources (e.g., "BluRay", "WebDL").
+    // A map of torrent categories that can be selected when uploading.
+    // Each has an array of zero or more sources available within that category.
     SQ_TORRENT_CATEGORIES: {
       Movies: ["BluRay", "WebDL", "HDRip", "WebRip", "DVD", "Cam"],
-      TV:[],
-      Music:[],
-      Books:[],
+      TV: [],
+      Music: [],
+      Books: [],
     },
 
-    // Configure bonus points:
+    // Number of bonus points awarded to a user for each GB they upload. Minimum 0.
+    SQ_BP_EARNED_PER_GB: 1,
 
-    // Number of bonus points earned per GB uploaded.
-    SQ_BP_EARNED_PER_GB: 3,
+    // Number of bonus points awarded to a user if they suggest a torrent to fill a request and it gets accepted
+    // They get double if they also the uploader of the accepted torrent
+    SQ_BP_EARNED_PER_FILLED_REQUEST: 1,
 
-    // Bonus points earned for suggesting a torrent that fulfills a request.
-    // Double the points if the user also uploads the accepted torrent.
-    SQ_BP_EARNED_PER_FILLED_REQUEST: 10,
+    // Number of bonus points it costs a user to buy 1 invite (set to 0 to disable buying invites).
+    SQ_BP_COST_PER_INVITE: 3,
 
-    // Bonus points required to purchase an invite. (Set to 0 to disable buying invites.)
-    SQ_BP_COST_PER_INVITE: 20,
+    // Number of bonus points it costs a user to buy 1 GB of upload (set to 0 to disable buying upload).
+    SQ_BP_COST_PER_GB: 3,
 
-    // Bonus points required to purchase 1 GB of upload credit. (Set to 0 to disable buying upload.)
-    SQ_BP_COST_PER_GB: 10,
-
-    // Enable site-wide freeleech for all torrents.
+    // Whether to enable freeleech on all torrents.
     SQ_SITE_WIDE_FREELEECH: false,
 
-    // Allow unregistered users to view torrent pages.
-    // This helps with search engine indexing but allows anyone to see torrent information.
+    // Whether torrent pages can be viewed by unregistered users.
+    // If true, only logged-in users will be able to download/interact, but anyone (search engines included) will be able to view/read torrent info.
+    // Non-logged-in users will also be able to browse category/tag pages and wiki pages that have been set to public.
+    // Enable if you want torrents to be indexed to help search traffic.
     SQ_ALLOW_UNREGISTERED_VIEW: false,
 
-    // Blacklist certain file extensions to prevent uploads containing those types of files.
-    SQ_EXTENSION_BLACKLIST: [
-      "exe", "msi", "bat", "cmd", "vbs", "ps1", "sh", "bash", "apk", "app",
-      "scr", "cpl", "dll", "ocx", "pif", "reg", "wsf"
-    ],
+    // An array of blacklisted file extensions. Torrents containing files with these extensions will fail to upload.
+    SQ_EXTENSION_BLACKLIST: ["exe"],
 
-    // Set the default language for your site.
-    // See `client/locales/index.js` for available options.
+    // Default site locale. See `client/locales/index.js` for available options.
     SQ_SITE_DEFAULT_LOCALE: "en",
 
     // The URL of your tracker site.
-    // - For local development, use `http://127.0.0.1:3000`.
-    // - For production, use your actual domain name (e.g., `https://yourtracker.com`).
-    SQ_BASE_URL: "http://ipaddress:80",
+    // For local development, this should be `http://127.0.0.1:3000`.
+    SQ_BASE_URL: "http://127.0.0.1:80",
 
-    // The URL of your API.
-    // - For local development, use `http://127.0.0.1:3001`.
-    // - For production, use the API endpoint of your domain (e.g., `https://yourtracker.com/api`).
-    SQ_API_URL: "http://ipaddress:3001",
+    // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`.
+    // For local development, this should be `http://127.0.0.1:3001`.
+    SQ_API_URL: "http://127.0.0.1:3001",
 
-    // The connection string for your MongoDB database.
-    // - For local development, use `mongodb://127.0.0.1/sqtracker`.
-    // - For production, use the appropriate connection string for your MongoDB server.
-    SQ_MONGO_URL: "mongodb://username:password@ipaddress:27017/sqtracker",
+    // The URL of your MongoDB server. Under the recommended setup, it should be `mongodb://nx_mongodb/nexustracker`.
+    // For local development, this should be `mongodb://127.0.0.1/nexustracker`.
+    SQ_MONGO_URL: "mongodb://TUG:TUG%40%40@129.213.83.107:27017/nexustracker",
 
-    // Disable sending emails. (Useful for testing, but not recommended for production.)
-    SQ_DISABLE_EMAIL: false,
+    // Disables sending of any emails and removes the need for an SMTP server.
+    // Fine for testing, not recommended in production as users will not be able to reset their passwords.
+    SQ_DISABLE_EMAIL: true,
 
-    // The email address that emails will be sent from.
-    SQ_MAIL_FROM_ADDRESS: "changeme@example.com",
-
-    // SMTP server settings for sending emails:
+    // The email address that mail will be sent from.
+    // Not required if SQ_DISABLE_EMAIL=true.
+    SQ_MAIL_FROM_ADDRESS: "mail@nexustracker.dev",
 
     // The hostname of your SMTP server.
+    // Not required if SQ_DISABLE_EMAIL=true.
     SQ_SMTP_HOST: "smtp.example.com",
 
     // The port of your SMTP server.
+    // Not required if SQ_DISABLE_EMAIL=true.
     SQ_SMTP_PORT: 587,
 
-    // Whether to force TLS encryption for SMTP connections.
-    SQ_SMTP_SECURE: false, 
+    // Whether to force SMTP TLS: if true the connection will use TLS when connecting to server.
+    // If false (the default) then TLS is used if server supports the STARTTLS extension.
+    // In most cases set this value to true if you are connecting to port 465. For port 587 or 25 keep it false.
+    // Not required if SQ_DISABLE_EMAIL=true.
+    SQ_SMTP_SECURE: false,
   },
   secrets: {
-    // A secret key used to sign authentication tokens. 
-    // This should be a long, random, and secure string.
-    SQ_JWT_SECRET: "Long_40_char_code",
+    // A secret value to sign tokens with. Should be long and random.
+    SQ_JWT_SECRET: "ljghdsiulryglyt438959035",
 
-    // A secret key used to verify server requests. 
-    // This should be different from the JWT secret and also be long, random, and secure.
-    SQ_SERVER_SECRET: "Long_40_char_code",
+    // A secret value to verify server requests with. Should be long and random, and different to the JWT secret.
+    SQ_SERVER_SECRET: "soifhgdyitetietpe347",
 
-    // The email address for the initial admin user.
+    // The email address to use for the initial admin user.
+    // Must be valid, you will need to verify.
     SQ_ADMIN_EMAIL: "admin@example.com",
 
-    // Credentials for authenticating with your SMTP server:
+    // The username to authenticate with your SMTP server with.
+    // Not required if SQ_DISABLE_EMAIL=true.
+    SQ_SMTP_USER: "smtp_username",
 
-    // The username for your SMTP server.
-    SQ_SMTP_USER: "chnageme@example.com",
-
-    // The password for your SMTP server.
-    SQ_SMTP_PASS: "Email_Password_or_app_password",
+    // The password to authenticate with your SMTP server with.
+    // Not required if SQ_DISABLE_EMAIL=true.
+    SQ_SMTP_PASS: "smtp_password",
   },
 };

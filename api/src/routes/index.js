@@ -1,3 +1,4 @@
+import express from "express";
 import accountRoutes from "./account";
 import userRoutes from "./user";
 import torrentRoutes from "./torrent";

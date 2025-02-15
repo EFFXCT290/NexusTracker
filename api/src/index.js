@@ -35,6 +35,7 @@ import {
 import { downloadTorrent } from "./controllers/torrent";
 import { rssFeed } from "./controllers/rss";
 import createAdminUser from "./setup/createAdminUser";
+import { cleanupOldProgressRecords } from './jobs/cleanupProgress';
 
 validateConfig(config).then(() => {
   if (process.env.SENTRY_DSN) {
@@ -67,7 +68,7 @@ validateConfig(config).then(() => {
   }
 
   const connectToDb = () => {
-    console.log("[sq] initiating db connection...");
+    console.log("[nx] initiating db connection...");
     mongoose
       .connect(process.env.SQ_MONGO_URL, {
         useNewUrlParser: true,
@@ -76,7 +77,7 @@ validateConfig(config).then(() => {
         useCreateIndex: true,
       })
       .catch((e) => {
-        console.error(`[sq] error on initial db connection: ${e.message}`);
+        console.error(`[nx] error on initial db connection: ${e.message}`);
         setTimeout(connectToDb, 5000);
       });
   };
@@ -148,12 +149,13 @@ validateConfig(config).then(() => {
   app.get("/sq/*/announce", createTrackerRoute("announce", onTrackerRequest));
   app.get("/sq/*/scrape", createTrackerRoute("scrape", onTrackerRequest));
 
-  app.use(bodyParser.json({ limit: "5mb" }));
+  app.use(bodyParser.json({ limit: "15mb" }));
+  app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
   app.use(cookieParser());
 
   app.get("/", (req, res) => {
     res.setHeader("Content-Type", "text/plain");
-    res.send(`■ sqtracker running: ${process.env.SQ_SITE_NAME}`).status(200);
+    res.send(`■ NexusTracker running: ${process.env.SQ_SITE_NAME}`).status(200);
   });
 
   // auth routes
@@ -183,12 +185,18 @@ validateConfig(config).then(() => {
   app.use("/wiki", wikiRoutes());
 
   app.use((err, req, res, next) => {
-    console.error(`[sq] error in ${req.url}:`, err);
-    res.status(500).send(`sqtracker API error: ${err}`);
+    console.error(`[nx] error in ${req.url}:`, err);
+    res.status(500).send(`NexusTracker API error: ${err}`);
   });
+
+  // Run cleanup job every 24 hours
+  setInterval(cleanupOldProgressRecords, 24 * 60 * 60 * 1000);
+
+  // Also run it on startup
+  cleanupOldProgressRecords();
 
   const port = process.env.SQ_PORT || 3001;
   app.listen(port, () => {
-    console.log(`[sq] ■ sqtracker running http://localhost:${port}`);
+    console.log(`[nx] ■ NexusTracker running http://localhost:${port}`);
   });
 });

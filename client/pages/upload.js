@@ -237,24 +237,14 @@ const Upload = ({ token, userId }) => {
   }, []);
 
   const onPosterDrop = useCallback((acceptedFiles) => {
-    try {
-      const [file] = acceptedFiles;
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          console.log(
-            `[DEBUG] Poster upload complete: ${reader.result.slice(0, 64)}...`
-          );
-          const [, posterB64] = reader.result.split("base64,");
-          setPosterFile({ name: file.name, b64: posterB64 });
-        };
-        reader.onerror = () => {
-          console.log(`[DEBUG] Poster upload error: ${reader.error}`);
-        };
-        reader.readAsDataURL(file);
-      }
-    } catch (e) {
-      console.error(e);
+    const file = acceptedFiles[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const b64 = reader.result.split(",")[1];
+        setPosterFile({ name: file.name, b64 });
+      };
+      reader.readAsDataURL(file);
     }
   }, []);
 
@@ -272,13 +262,27 @@ const Upload = ({ token, userId }) => {
     accept: {
       "image/jpeg": [".jpg", ".jpeg"],
       "image/png": [".png"],
+      "image/gif": [".gif"],
+      "image/webp": [".webp"]
     },
     maxFiles: 1,
-    maxSize: 5242880, //5Mo
+    maxSize: 15728640, // 15MB (15 * 1024 * 1024)
   });
-  function isPngImage(data) {
-    const pngHeader = "data:image/png;base64,";
-    return data.startsWith(pngHeader);
+
+  function getImageType(data) {
+    const mimeTypes = {
+      "data:image/png;base64,": "png",
+      "data:image/jpeg;base64,": "jpeg",
+      "data:image/gif;base64,": "gif",
+      "data:image/webp;base64,": "webp"
+    };
+
+    for (const [header, type] of Object.entries(mimeTypes)) {
+      if (data.startsWith(header)) {
+        return type;
+      }
+    }
+    return "jpeg"; // default fallback
   }
 
   const handleUpload = async (e) => {
@@ -288,6 +292,12 @@ const Upload = ({ token, userId }) => {
 
     try {
       if (!torrentFile) throw new Error("No .torrent file added");
+
+      let posterData = null;
+      if (posterFile) {
+        posterData = posterFile.b64;
+      }
+
       const uploadRes = await fetch(`${SQ_API_URL}/torrent/upload`, {
         method: "POST",
         headers: {
@@ -295,16 +305,16 @@ const Upload = ({ token, userId }) => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          torrent: torrentFile.b64,
           name: form.get("name"),
           description: form.get("description"),
           type: form.get("category"),
           source: form.get("source"),
-          anonymous: !!form.get("anonymous"),
-          torrent: torrentFile.b64,
+          poster: posterData,
           tags: form.get("tags"),
-          groupWith,
           mediaInfo: form.get("mediaInfo"),
-          poster: posterFile ? posterFile.b64 : null,
+          groupWith: groupWith,
+          anonymous: form.get("anonymous") === "on",
         }),
       });
 
@@ -436,9 +446,7 @@ const Upload = ({ token, userId }) => {
                 <input {...getPosterInputProps()} />
                 {posterFile ? (
                   <img
-                    src={`data:image/${
-                      isPngImage(posterFile.b64) ? "png" : "jpeg"
-                    };base64,${posterFile.b64}`}
+                    src={`data:image/${getImageType(posterFile.b64)};base64,${posterFile.b64}`}
                     alt="Poster"
                     width={"auto"}
                     height={200}

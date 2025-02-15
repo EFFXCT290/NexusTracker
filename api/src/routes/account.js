@@ -12,6 +12,7 @@ import {
   disableTotp,
   deleteAccount,
   getUserBookmarks,
+  resendVerificationEmail,
 } from "../controllers/user";
 
 const router = express.Router();
@@ -29,5 +30,6 @@ export default (tracker, mail) => {
   router.post("/totp/disable", disableTotp);
   router.post("/delete", deleteAccount);
   router.get("/bookmarks", getUserBookmarks(tracker));
+  router.post("/resend-verification", resendVerificationEmail(mail));
   return router;
 };
