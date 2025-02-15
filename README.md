@@ -92,12 +92,12 @@ docker-compose up -d
 
 ### 4. Setup NGINX Proxy Manager
 - Go to NPM at `http://your-ip:81/`
-- Go to Proxy Host STEP 01
 <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%201.png">
 - Click Add Proxy Host and change your ip/domain name (leave everything as it is in the picture!)
 <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%202.png">
 - Apply The Custom NGINX Configuration and Click Save
   <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%203.png">
+
 ```bash
 location / {
     proxy_pass http://nexus_client:3000;
@@ -136,6 +136,7 @@ location /sq/ {
     proxy_set_header Connection "upgrade";
 }
 ```
+
 - You Have Successfuly Setup NGINX Proxy Manager! 
 <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%204.png">
 - Visit your tracker at `http://your-ip:80/` or https://your-domain/
