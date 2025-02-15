@@ -1,17 +1,49 @@
 import mongoose from "mongoose";
 
-const Progress = new mongoose.Schema({
-  infoHash: String,
-  userId: mongoose.Schema.ObjectId,
+const progressSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  infoHash: {
+    type: String,
+    required: true,
+  },
+  peerId: {
+    type: String,
+    required: true,
+  },
   uploaded: {
-    session: Number,
-    total: Number,
+    session: {
+      type: Number,
+      default: 0,
+    },
+    total: {
+      type: Number,
+      default: 0,
+    },
   },
   downloaded: {
-    session: Number,
-    total: Number,
+    session: {
+      type: Number,
+      default: 0,
+    },
+    total: {
+      type: Number,
+      default: 0,
+    },
   },
-  left: Number,
+  left: {
+    type: Number,
+    default: 0,
+  },
+  lastSeen: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-export default mongoose.model("progress", Progress);
+progressSchema.index({ userId: 1, infoHash: 1, peerId: 1 });
+
+export default mongoose.model("Progress", progressSchema);
