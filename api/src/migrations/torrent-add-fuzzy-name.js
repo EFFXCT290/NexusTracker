@@ -11,7 +11,7 @@ import config from "../../../config";
     useCreateIndex: true,
   });
 
-  console.log("[sq] connected to mongodb successfully");
+  console.log("[nx] connected to mongodb successfully");
 
   for await (const doc of Torrent.find()) {
     if (!doc.name_fuzzy?.some((n) => n !== "")) {
