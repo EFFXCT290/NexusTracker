@@ -35,8 +35,8 @@ services:
     expose:
       - "3001"
     environment:
-      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip}
-      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api}
+      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip} # change http to https if you want https
+      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api} # change http to https if you want https
         
   client:
     image: effxct290/nexustracker-client:latest-amd64
@@ -58,8 +58,8 @@ services:
     expose:
       - "3000"
     environment:
-      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip}
-      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api}
+      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip} # change http to https if you want https
+      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api} # change http to https if you want https
 
 networks:
   tracker-network:
