@@ -67,7 +67,7 @@ apt update && apt install nano
 
 # Edit MongoDB config
 ```bash
-nano /etc/mongod.conf
+nano /etc/mongod.conf.orig
 ```
 
 # Change bind address: 127.0.0.1 → 0.0.0.0
