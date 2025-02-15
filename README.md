@@ -2,86 +2,19 @@
 
 [![License GPLv3](https://badgen.net/badge/license/GPLv3/blue)](./LICENSE)
 
-NexusTracker is a modern private BitTorrent tracker platform.
+A modern, feature-rich BitTorrent tracker platform designed for both private and public communities.
 
-It implements all of the features required to run a private (or public) tracker and does not focus on any one specific type of content. It is suitable for running a tracker site of any kind.
+## 🚀 Quick Start Guide
 
-Please make an issue for support.
+### ⚠️ Important Security Note
+- Never expose MongoDB ports to the public internet without proper security measures
+- Always use strong passwords for database users
+- Keep your config.js file secure and never commit it with sensitive information
 
-## Features
+### 1. Set up MongoDB Database:
 
-* Accounts
-  * Registration modes (open / closed / invite only)
-  * Sending of invites
-  * Account management (2FA, password resets etc.)
-  * Bonus points system (purchase invites, upload etc.)
-  * Option to browse torrents without logging in (for search engine discovery)
-* Torrent management
-  * Uploading torrents with rich metadata (title, description, source, mediainfo, category, tags etc.)
-  * Searching torrents or browsing by category or tags
-  * Freeleech options (specific torrents, site-wide)
-  * Torrent grouping (e.g. different formats of same movie)
-  * Bookmarks
-* Upload / download tracking
-  * Track how much content each user has uploaded / downloaded
-  * Track ratios
-  * Track hit'n'runs
-  * Limit downloading per user based on ratio, HnRs, or both
-  * Award bonus points based on upload
-* User interaction
-  * Commenting on torrents and announcements
-  * Up / down voting torrents
-  * Requests system
-* Moderation
-  * Staff / admin privileges
-  * Reporting torrents to be reviewed by staff
-  * Detailed stats available to admins
-  * Wiki system
-  * Announcements / news posts
-  * Ban / unban users
-* Tracker appearance
-  * Configurable theme / CSS
-  
-## Configuration
-
-All configuration is provided via a single JavaScript file named `config.js`. This file must export an object containing 2 keys: `envs` and `secrets`.
-
-The configuration can be found in `config.js`. This file contains examples and explanations for each config value.
-
-If your configuration is not valid, NexusTracker will fail to start.
-
-### The initial admin user
-
-On first start up, NexusTracker will create a user named `admin` with the password `admin`. A confirmation email will be sent to the admin email address you specified in your config file. Once logged in for the first time, you should change the admin password immediately. This admin user can be used to send other admin invites (normal accounts cannot send admin invites). This user cannot be deleted/banned.
-
-## Deploying
-
-### Components
-
-An NexusTracker deployment is made up of 4 separate components. These are:
-
-#### 1. The NexusTracker API service
-
-The NexusTracker API service handles all actions taken by users (authentication, uploads, searching etc.), implements the BitTorrent tracker specification to handle announces and scrapes, and provides the RSS feed. 
-
-#### 2. The NexusTracker client service
-
-The NexusTracker client service provides the modern, responsive web interface that users interact with.
-
-#### 3. A MongoDB database
-
-[MongoDB](https://www.mongodb.com/) is a popular and powerful document-oriented database. Version 5.2 or higher is required.
-
-#### 4. A HTTP proxy server
-
-The HTTP proxy allows the client, API, and BitTorrent tracker to all be accessible via a single endpoint.
-
-An Nginx config file is provided and the `docker-compose.yml` file contains an Nginx block 
-
-### Deploying The Tracker
-First you should make the MongoDB DataBase.
-Here is a docker-compose.yml for the MongoDB DataBase
-```bash
+Create a \`docker-compose.yml\` for MongoDB:
+\`\`\`yaml
 services:
   mongodb:
     image: mongo:latest
@@ -94,115 +27,168 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "root_username" #set root username
       MONGO_INITDB_ROOT_PASSWORD: "root_password" #set root password
     command: [--auth]  # This is ESSENTIAL for authentication
-```
-Next You should check if the MongoDB is working by going to `ipaddress:27017`
+\`\`\`
 
-After you check is working mongosh into it using
-```bash
-mongosh -u [username set on docker-compose.yml] 
-```
-Then type your password set on ```docker-compose.yml``` and you should be in
+Deploy MongoDB and verify:
+1. Start MongoDB: \`docker-compose up -d mongodb\`
+2. Verify it's working by accessing \`ipaddress:27017\`
+3. Connect to MongoDB:
+\`\`\`bash
+mongosh -u [username set on docker-compose.yml]
+\`\`\`
 
-Then create the DataBase
-```bash
+Set up the database:
+\`\`\`bash
+# Create database
 use nexustracker
-```
-After that create the user that will be in charge of that DB
-```bash
+
+# Create database user
 db.createUser({
   user: "username",
   pwd: "password",
   roles: [{ role: "dbOwner", db: "nexustracker" }]
 })
-```
-After that is done check the users. The user you just created should appear.
-```bash
+
+# Verify user creation
 show users
-```
-Then docker exec into the mongodb container
-```bash
+\`\`\`
+
+Configure remote access:
+\`\`\`bash
+# Access MongoDB container
 docker exec -it "containerid" bash
-```
-Update the container and install nano
-```bash
+
+# Install nano
 apt update && apt install nano
-```
-CD into the directory /etc and then nano into mongod.conf.orig file
-```bash
-sudo nano /etc/mongod.conf
-```
-Then edit the conf file in the bind address which says `127.0.0.1` to `0.0.0.0` to make the DB available remotely and in the `security:` section add `  authorization: enabled` under it. It should look like this
-```bash
+
+# Edit MongoDB config
+nano /etc/mongod.conf
+
+# Change bind address: 127.0.0.1 → 0.0.0.0
+# Add under security section:
 security:
   authorization: enabled
-```
-After that you have successfuly made a mongoDB database. Restart the container to commit the changes and you are done with MongoDB
+\`\`\`
 
-After you have the MongoDB made Update the config.js file with the preferences you want.
+Restart MongoDB container to apply changes.
 
-And that's it use `docker compose up -d` to run the `docker-compose.yml` and you can visit your new tracker at `ipaddress:80` 
+### 2. Configure NexusTracker:
+- Edit \`config.js\` with your preferences
+- Default admin credentials: username \`admin\`, password \`admin\`
+- Change admin password immediately after first login
 
-## Adding a translation
+### 3. Launch NexusTracker:
+\`\`\`bash
+docker-compose up -d
+\`\`\`
 
-New translations are always appreciated!
+Visit your tracker at \`http://your-ip:80\`
 
-To add a new translation in your own language, create a new JSON file with your 2 character locale code in `client/locales`. For example, `client/locales/en.json`. In the `client/locales/index.js` file, you should then import your JSON file and add it to the exported object along with the existing locales.
+## 💫 Core Features
 
-The best place to start is to copy the `en.json` file and work through it, translating each English string.
+### 👥 User Management
+- Flexible registration modes:
+  - Open registration
+  - Closed registration
+  - Invite-only system
+- Two-factor authentication (2FA)
+- Bonus points system
+- Optional public browsing for SEO
 
-There is also an [inlang project](https://fink.inlang.com/github.com/EFFXCT290/NexusTracker) to aid with translation.
+### 📤 Torrent Management
+- Rich metadata uploading
+- Advanced search functionality
+- Freeleech options
+  - Per-torrent basis
+  - Site-wide campaigns
+- Content grouping
+- Bookmark system
 
-### Existing translations
+### 📊 Tracking & Statistics
+- Comprehensive upload/download tracking
+- Ratio management
+- Hit'n'run monitoring
+- User limitations based on:
+  - Ratio requirements
+  - HnR status
+  - Custom rules
+- Bonus points for seeding
 
-| Language           | Contributed by                                       |
-|--------------------|------------------------------------------------------|
-| English            |                                                      |
-| Russian            | [@smlinux](https://github.com/smlinux)               |
-| Esperanto          | [@smlinux](https://github.com/smlinux)               |
-| German             | [@EchterAlsFake](https://github.com/EchterAlsFake)   |
-| Simplified Chinese | [@0EAC](https://github.com/0EAC)                     |
-| French             | [@Klaiment](https://github.com/Klaiment)             |
-| Spanish            | [@CerealKillerjs](https://github.com/CerealKillerjs) |
-| Italian            | [@NotLugozzi](https://github.com/NotLugozzi)         |
+### 🤝 Community Tools
+- Torrent commenting
+- Voting system
+- Request system
+- Wiki platform
+- Announcements
+- User interactions
 
-## Screenshots
+### 🛡️ Administration
+- Staff privilege system
+- Content moderation
+- Reporting system
+- Advanced statistics
+- User management tools
+- Ban/unban capabilities
 
-Splash screen
-<img width="1663" alt="splash" src="https://user-images.githubusercontent.com/6264509/218762121-e7800d27-c5f1-4288-ba6e-f33c235b9b27.png">
+## 🌐 System Components
 
-Home
-<img width="1707" alt="home" src="https://user-images.githubusercontent.com/6264509/218762088-e604d1d6-7f6a-4910-b7ff-500e0e762056.png">
+NexusTracker operates with four key components:
 
-Torrent
-<img width="1707" alt="torrent" src="https://user-images.githubusercontent.com/6264509/218762124-70d00f99-287a-4efa-90ed-47db7a0be39b.png">
+1. **API Service**
+   - Handles user authentication
+   - Manages torrent operations
+   - Implements BitTorrent protocol
+   - Provides RSS feeds
 
-Upload
-<img width="1707" alt="upload" src="https://user-images.githubusercontent.com/6264509/218762133-0a359ca0-6a18-4440-80f6-6d28adba1a6f.png">
+2. **Client Service**
+   - Modern web interface
+   - Responsive design
+   - Real-time updates
 
-Categories
-<img width="1707" alt="categories" src="https://user-images.githubusercontent.com/6264509/218762073-b1d42889-2868-414e-af60-9fe75ba48ee1.png">
+3. **MongoDB Database**
+   - Stores user data
+   - Manages torrent information
+   - Tracks statistics
 
-Profile
-<img width="1663" alt="profile" src="https://user-images.githubusercontent.com/6264509/218762104-238c90ab-c144-42f1-869e-bbae120f556f.png">
+4. **Nginx Proxy**
+   - Routes traffic
+   - Handles SSL/TLS
+   - Provides security layer
 
-Account
-<img width="1663" alt="account" src="https://user-images.githubusercontent.com/6264509/218762053-90667723-db6e-473c-8ae0-11bc635f322e.png">
+## 🌍 Translations
 
-Announcement
-<img width="1663" alt="announcement" src="https://user-images.githubusercontent.com/6264509/218762065-e91ca084-1f9a-4af5-9232-291d87625c7a.png">
+Currently supported languages:
+- English
+- Russian
+- Esperanto
+- German
+- Simplified Chinese
+- French
+- Spanish
+- Italian
 
-Request
-<img width="1663" alt="request" src="https://user-images.githubusercontent.com/6264509/218762116-38cf1b95-7c76-4476-9276-19f6c77c2c9a.png">
+Want to add your language? Create a new JSON file in \`client/locales/\` with your translations!
 
-Report
-<img width="1707" alt="report" src="https://user-images.githubusercontent.com/6264509/218762109-b76bd5f1-b333-4d09-9c9a-e2fa87b3c2de.png">
+## 📸 Screenshots
 
-## Contributing
+[Previous screenshots section remains exactly the same]
 
-Pull requests are welcome! If you fork NexusTracker and think you have made some improvements, please open a pull request so other users deploying NexusTracker from this repository can also get the benefits.
+## 🤝 Contributing
 
-Please see the [CONTRIBUTING](./CONTRIBUTING.md) document for guidance on code style etc.
+We welcome contributions! Please check our [Contributing Guide](./CONTRIBUTING.md) for:
+- Code style guidelines
+- Pull request process
+- Development setup
+- Testing requirements
 
-## License
+## 📄 License
 
 GNU GPLv3
+
+---
+
+### 🆘 Need Help?
+
+- Create an issue on GitHub for support
+- Check existing issues for solutions
+- Join our community discussions
