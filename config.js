@@ -76,6 +76,9 @@ module.exports = {
     // Default site locale. See `client/locales/index.js` for available options.
     SQ_SITE_DEFAULT_LOCALE: "en",
 
+    // YOU NEED TO PUT BOTH `SQ_BASE_URL` AND `SQ_API_URL` AS HTTP ADDRESS! 
+    // LATER YOU CAN CHANGE IT TO YOUR DOMAIN IN NGINX PROXY MANAGER!
+    
     // The URL of your tracker site.
     // This configuration will work regardless of HTTP or HTTPS Protocol
     // For local development, this should be http://127.0.0.1 or `http://ipaddress` if running in VPS
