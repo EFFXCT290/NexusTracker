@@ -102,6 +102,7 @@ docker-compose up -d
 - The first one is for http 
 - The second one is for https (If you select the second one you need to setup a domain name and ssl in npm!)
 - DO NOT ENABLE FORCE SSL IN ANY OF THE TWO! AS IT IS AUTOMATICALLY ENABLED IN THE CONFIG!
+-HTTP
 ```bash
 location / {
     proxy_pass http://nexus_client:3000;
@@ -140,6 +141,7 @@ location /sq/ {
     proxy_set_header Connection "upgrade";
 }
 ```
+- HTTPS
 ```bash
 location / {
     proxy_pass http://nexus_client:3000;
