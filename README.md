@@ -1,5 +1,5 @@
 # ■ NexusTracker
-
+## Originaly Forked from SqTracker
 [![License GPLv3](https://badgen.net/badge/license/GPLv3/blue)](./LICENSE)
 
 A modern, feature-rich BitTorrent tracker platform designed for both private and public communities.
