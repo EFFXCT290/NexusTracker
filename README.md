@@ -139,7 +139,7 @@ location /sq/ {
 
 - You Have Successfuly Setup NGINX Proxy Manager! 
 <img width="1663" alt="Step 01" src="https://raw.githubusercontent.com/EFFXCT290/NexusTracker/master/.github/images/NPM%20STEP%204.png">
-- Visit your tracker at `http://your-ip:80/` or https://your-domain/
+- Visit your tracker at `http://your-ip:80/` or `https://your-domain/`
 
 ## 💫 Core Features
 
