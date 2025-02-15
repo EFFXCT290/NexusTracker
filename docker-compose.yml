@@ -1,12 +1,21 @@
 services:
-  nginx:
-    image: "nginx:latest"            
-    container_name: "nexus_nginx"
-    restart: always
+  npm:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - '80:80'    # HTTP
+      - '443:443'  # HTTPS
+      - '81:81'    # Admin UI
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf 
+      - ./npm-data:/data
+      - ./npm-letsencrypt:/etc/letsencrypt
+    networks:
+      - tracker-network
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+      DISABLE_IPV6: "true"
+
       
   api:
     image: effxct290/nexustracker-api:latest-amd64
@@ -14,8 +23,6 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
     volumes:
       - type: bind
         source: ./config.js
@@ -23,6 +30,13 @@ services:
     labels:
       - "com.nexustracker.description=NexusTracker API Service"
       - "com.nexustracker.maintainer=EFFXCT290"
+    networks:
+      - tracker-network
+    expose:
+      - "3001"
+    environment:
+      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip}
+      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api}
         
   client:
     image: effxct290/nexustracker-client:latest-amd64
@@ -30,8 +44,6 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
     volumes:
       - type: bind
         source: ./config.js
@@ -41,3 +53,14 @@ services:
       - "com.nexustracker.maintainer=EFFXCT290"
     depends_on:
       - api
+    networks:
+      - tracker-network
+    expose:
+      - "3000"
+    environment:
+      - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip}
+      - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api}
+
+networks:
+  tracker-network:
+    driver: bridge
