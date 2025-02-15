@@ -82,7 +82,7 @@ module.exports = {
     SQ_BASE_URL: "http://127.0.0.1:80",
 
     // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`. 
-    // If running in VPS it should be `http://ipaddress:3000` or `http://ipaddress/api`. 
+    // If running in VPS it should be `http://ipaddress:3001` or `http://ipaddress/api`. 
     // For local development, this should be `http://127.0.0.1:3001`.
     SQ_API_URL: "http://127.0.0.1:3001",
 
