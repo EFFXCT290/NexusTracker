@@ -84,7 +84,7 @@ validateConfig(config).then(() => {
   connectToDb();
 
   mongoose.connection.once("open", async () => {
-    console.log("[sq] connected to mongodb successfully");
+    console.log("[nx] connected to mongodb successfully");
     await createAdminUser(mail);
   });
 
