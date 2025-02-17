@@ -312,5 +312,9 @@
   "wikiDelThisPageQ": "Are you sure you want to delete this wiki page? This cannot be undone.",
   "uploadPosterUrl": "Enter poster image URL",
   "uploadOr": "OR",
-  "uploadInvalidImageUrl": "Invalid image URL"
+  "uploadInvalidImageUrl": "Invalid image URL",
+  "resendVerificationEmail": "Resend Verification Email",
+  "success": "Success",
+  "error": "Error",
+  "verificationEmailResent": "Verification email has been resent to your address"
 }
