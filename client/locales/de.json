@@ -304,5 +304,12 @@
   "wikiPages": "Seiten",
   "wikiSaveChanges": "Änderungen speichern",
   "wikiThereNothingHereYet": "Hier ist noch nichts",
-  "wikiDelThisPageQ": "Sind Sie sicher, dass Sie diese Wiki-Seite löschen möchten? Das kann nicht rückgängig gemacht werden."
+  "wikiDelThisPageQ": "Sind Sie sicher, dass Sie diese Wiki-Seite löschen möchten? Das kann nicht rückgängig gemacht werden.",
+  "uploadPosterUrl": "Poster Bild URL eingeben",
+  "uploadOr": "ODER",
+  "uploadInvalidImageUrl": "Ungültige Bild URL",
+  "resendVerificationEmail": "Verifizierung E-Mail erneut senden",
+  "success": "Erfolg",
+  "error": "Fehler",
+  "verificationEmailResent": "Verifizierung E-Mail wurde erfolgreich erneut gesendet"
 }
