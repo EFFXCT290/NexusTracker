@@ -14,6 +14,7 @@ import { ErrorCircle } from "@styled-icons/boxicons-regular/ErrorCircle";
 import { News } from "@styled-icons/boxicons-regular/News";
 import moment from "moment/moment";
 import LocaleContext from "../utils/LocaleContext";
+import ResendVerification from "../components/ResendVerification";
 
 const PublicLanding = ({ name, allowRegister }) => {
   const { getLocaleString } = useContext(LocaleContext);
@@ -87,8 +88,11 @@ const Index = ({
       </Text>
       {!emailVerified && (
         <Infobox mb={5}>
-          <Text icon={ErrorCircle} iconColor="error">
+          <Text icon={ErrorCircle} iconColor="error" display="flex" alignItems="center">
             {getLocaleString("indexText1")}
+            <Box ml={3}>
+              <ResendVerification token={token} />
+            </Box>
           </Text>
         </Infobox>
       )}
