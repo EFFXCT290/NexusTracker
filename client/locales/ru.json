@@ -123,7 +123,6 @@
   "reqTitle": "Заголовок",
   "reqPostedBy": "Сообщение от",
   "reqPost": "Опубликовать",
-  "reqTitle": "Заголовок",
   "reqRequestCreatedSuccess": "Запрос успешно создан",
   "reqCouldNotCreateReq": "Не удалось создать запрос",
   "reqNewRequest": "Новый запрос",
@@ -303,5 +302,12 @@
   "wikiPages": "Страницы",
   "wikiSaveChanges": "Сохранить изменения",
   "wikiThereNothingHereYet": "Здесь пока ничего нет.",
-  "wikiDelThisPageQ": "Вы уверены, что хотите удалить эту wiki страницу? Действие необратимо."
+  "wikiDelThisPageQ": "Вы уверены, что хотите удалить эту wiki страницу? Действие необратимо.",
+  "uploadPosterUrl": "URL изображения обложки",
+  "uploadOr": "ИЛИ",
+  "uploadInvalidImageUrl": "Неверный URL изображения обложки",
+  "resendVerificationEmail": "Отправить повторное подтверждение электронной почты",
+  "success": "Успех",
+  "error": "Ошибка",
+  "verificationEmailResent": "Электронная почта подтверждения отправлена на ваш адрес"
 }
