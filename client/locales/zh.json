@@ -306,5 +306,12 @@
   "wikiPages": "页面",
   "wikiSaveChanges": "保存更改",
   "wikiThereNothingHereYet": "目前还没有内容。",
-  "wikiDelThisPageQ": "您确定要删除这个维基页面吗？此操作无法撤销。"
+  "wikiDelThisPageQ": "您确定要删除这个维基页面吗？此操作无法撤销。",
+  "uploadPosterUrl": "海报图片 URL",
+  "uploadOr": "或",
+  "uploadInvalidImageUrl": "无效的海报图片 URL",
+  "resendVerificationEmail": "重新发送验证邮件",
+  "success": "成功",
+  "error": "错误",
+  "verificationEmailResent": "验证邮件已重新发送至您的地址"
 }
