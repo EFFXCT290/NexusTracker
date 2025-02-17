@@ -1129,24 +1129,17 @@ export const resendVerificationEmail = (mail) => async (req, res, next) => {
       return;
     }
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    
-    await User.findByIdAndUpdate(req.userId, {
-      emailVerificationToken: verificationToken,
-    });
+    const emailVerificationValidUntil = Date.now() + 48 * 60 * 60 * 1000; // 48 hours
+    const emailVerificationToken = jwt.sign(
+      {
+        user: user.email,
+        validUntil: emailVerificationValidUntil,
+      },
+      process.env.SQ_JWT_SECRET
+    );
 
     if (mail) {
-      await mail.sendMail({
-        from: process.env.SQ_SMTP_FROM,
-        to: user.email,
-        subject: `${process.env.SQ_SITE_NAME} - Verify your email address`,
-        text: `Please verify your email address by clicking the following link:\n\n${
-          process.env.SQ_BASE_URL
-        }/verify-email?token=${verificationToken}`,
-        html: `Please verify your email address by clicking the following link:<br><br><a href="${
-          process.env.SQ_BASE_URL
-        }/verify-email?token=${verificationToken}">Verify email address</a>`,
-      });
+      await sendVerificationEmail(mail, user.email, emailVerificationToken);
     }
 
     res.sendStatus(200);
