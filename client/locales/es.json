@@ -306,5 +306,12 @@
   "wikiPages": "Páginas",
   "wikiSaveChanges": "Guardar cambios",
   "wikiThereNothingHereYet": "Todavía no hay nada aquí.",
-  "wikiDelThisPageQ": "¿Estás seguro de que quieres eliminar esta página wiki? Esto no se puede deshacer."
+  "wikiDelThisPageQ": "¿Estás seguro de que quieres eliminar esta página wiki? Esto no se puede deshacer.",
+  "uploadPosterUrl": "URL de la imagen de portada",
+  "uploadOr": "O",
+  "uploadInvalidImageUrl": "URL de la imagen de portada inválida",
+  "resendVerificationEmail": "Reenviar correo de verificación",
+  "success": "Éxito",
+  "error": "Error",
+  "verificationEmailResent": "Correo de verificación reenviado a tu dirección"
 }
