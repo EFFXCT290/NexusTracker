@@ -8,6 +8,8 @@ import adminRoutes from "./admin";
 import requestRoutes from "./request";
 import groupRoutes from "./group";
 import wikiRoutes from "./wiki";
+import { auth } from "../middleware/auth";
+import { resendVerification } from "../controllers/resendVerification";
 
 export {
   accountRoutes,
@@ -19,4 +21,11 @@ export {
   requestRoutes,
   groupRoutes,
   wikiRoutes,
+};
+
+const router = express.Router();
+
+export const resendVerificationRoute = (mail) => {
+  router.post("/account/resend-verification", auth, resendVerification(mail));
+  return router;
 };
