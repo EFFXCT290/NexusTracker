@@ -25,25 +25,22 @@ const ResendVerification = ({ token }) => {
       });
 
       if (res.ok) {
-        addNotification({
-          title: getLocaleString("success"),
-          message: getLocaleString("verificationEmailResent"),
-          type: "success",
-        });
+        addNotification(
+          "success",
+          getLocaleString("verificationEmailResent")
+        );
       } else {
         const error = await res.text();
-        addNotification({
-          title: getLocaleString("error"),
-          message: error,
-          type: "error",
-        });
+        addNotification(
+          "error",
+          error
+        );
       }
     } catch (e) {
-      addNotification({
-        title: getLocaleString("error"),
-        message: e.message,
-        type: "error",
-      });
+      addNotification(
+        "error",
+        e.message
+      );
     } finally {
       setLoading(false);
     }
