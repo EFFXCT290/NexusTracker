@@ -306,5 +306,12 @@
     "wikiPages": "Pagine",
     "wikiSaveChanges": "Salva modifiche",
     "wikiThereNothingHereYet": "Non c'è ancora nulla qui.",
-    "wikiDelThisPageQ": "Sei sicuro di voler eliminare questa pagina della wiki? Questa azione non può essere annullata."
+    "wikiDelThisPageQ": "Sei sicuro di voler eliminare questa pagina della wiki? Questa azione non può essere annullata.",
+    "uploadPosterUrl": "URL dell'immagine di copertina",
+    "uploadOr": "O",
+    "uploadInvalidImageUrl": "URL dell'immagine di copertina non valida",
+    "resendVerificationEmail": "Rinvio email di verifica",
+    "success": "Successo",
+    "error": "Errore",
+    "verificationEmailResent": "Email di verifica inviata di nuovo all'indirizzo"
   }
