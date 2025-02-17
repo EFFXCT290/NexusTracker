@@ -304,5 +304,12 @@
   "wikiPages": "Paĝoj",
   "wikiSaveChanges": "Konservi ŝanĝojn",
   "wikiThereNothingHereYet": "Ankoraŭ estas nenio ĉi tie.",
-  "wikiDelThisPageQ": "Ĉu vi certas, ke vi volas forigi ĉi tiun vikipaĝon? Ĉi tio ne povas esti malfarita."
+  "wikiDelThisPageQ": "Ĉu vi certas, ke vi volas forigi ĉi tiun vikipaĝon? Ĉi tio ne povas esti malfarita.",
+  "uploadPosterUrl": "Enigu afiŝo-bildon URL",
+  "uploadOr": "AŬ",
+  "uploadInvalidImageUrl": "Nevalida bild-URL",
+  "resendVerificationEmail": "Sendi verifikacian retpoŝton denove",
+  "success": "Sukceso",
+  "error": "Eraro",
+  "verificationEmailResent": "Verifikaciana retpoŝto estis sendita denove al via adreso"
 }
