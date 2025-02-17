@@ -351,5 +351,12 @@
   "wikiEditDiscussionCouldNotCreate": "Impossible de créer la discussion",
   "wikiEditDiscussionEdit": "Modifier la discussion",
   "wikiEditDiscussionEditSuccess": "Discussion modifiée avec succès",
-  "wikiEditDiscussionCouldNotEdit": "Impossible de modifier la discussion"
+  "wikiEditDiscussionCouldNotEdit": "Impossible de modifier la discussion",
+  "uploadPosterUrl": "URL de l'image de couverture",
+  "uploadOr": "OU",
+  "uploadInvalidImageUrl": "URL de l'image de couverture invalide",
+  "resendVerificationEmail": "Renvoyer l'e-mail de vérification",
+  "success": "Succès",
+  "error": "Erreur",
+  "verificationEmailResent": "E-mail de vérification renvoyé à votre adresse"
 }
