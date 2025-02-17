@@ -23,7 +23,6 @@ import { NotificationContext } from "../components/Notifications";
 import Modal from "../components/Modal";
 import LoadingContext from "../utils/LoadingContext";
 import LocaleContext from "../utils/LocaleContext";
-import ResendVerification from "../components/ResendVerification";
 
 const BuyItem = ({ text, cost, wallet, handleBuy }) => {
   const [amount, setAmount] = useState(1);
@@ -724,14 +723,6 @@ const Account = ({ token, invites = [], user, userRole }) => {
             </Box>
           </form>
         </Modal>
-      )}
-      {!user.emailVerified && (
-        <Infobox mb={4}>
-          <Text color="error" mb={2}>
-            {getLocaleString("emailVerificationRequired")}
-          </Text>
-          <ResendVerification token={token} />
-        </Infobox>
       )}
     </>
   );
