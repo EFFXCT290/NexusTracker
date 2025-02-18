@@ -168,9 +168,6 @@ validateConfig(config).then(() => {
   // rss feed (auth handled in cookies)
   app.get("/rss", rssFeed(tracker));
 
-  // torrent file download (can download without auth, will not be able to announce)
-  app.get("/torrent/download/:infoHash/:userId", downloadTorrent);
-
   // everything from here on requires user auth
   app.use(auth);
 
