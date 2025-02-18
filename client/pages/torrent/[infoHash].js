@@ -163,6 +163,7 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
       SQ_SITE_WIDE_FREELEECH,
       SQ_MINIMUM_RATIO,
       SQ_MAXIMUM_HIT_N_RUNS,
+      SQ_SITE_NAME,
     },
   } = getConfig();
 
@@ -601,13 +602,38 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
           )}
           {userId ? (
             <Button
-              as="a"
-              href={
-                downloadDisabled
-                  ? undefined
-                  : `${SQ_API_URL}/torrent/download/${torrent.infoHash}/${uid}`
-              }
-              target="_blank"
+              onClick={async () => {
+                try {
+                  const response = await fetch(
+                    `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
+                  
+                  // Get the blob from the response
+                  const blob = await response.blob();
+                  
+                  // Create a download link with proper filename
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `${torrent.name} - ${SQ_SITE_NAME}.torrent`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } catch (error) {
+                  console.error('Download failed:', error);
+                  addNotification('error', 'Failed to download torrent file');
+                }
+              }}
               disabled={downloadDisabled}
             >
               {getLocaleString("torrDownload")} .torrent
@@ -996,7 +1022,7 @@ export const getServerSideProps = withAuthServerSideProps(
       const userStats = await userStatsRes.json();
 
       return {
-        props: { torrent, userId: id, userRole: role, uid: userId, userStats },
+        props: { token, torrent, userId: id, userRole: role, uid: userId, userStats },
       };
     } catch (e) {
       if (e === "banned") throw "banned";
