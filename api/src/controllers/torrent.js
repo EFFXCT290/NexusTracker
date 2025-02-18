@@ -9,6 +9,7 @@ import User from "../schema/user";
 import Comment from "../schema/comment";
 import Group from "../schema/group";
 import { createGroup, addToGroup, removeFromGroup } from "./group";
+import { env } from "process";
 
 const urlReservedCharRegex = /[&$+,/:;=?@#<>\[\]{}|\\\^%]/g;
 
@@ -239,19 +240,22 @@ export const editTorrent = async (req, res, next) => {
 
 export const downloadTorrent = async (req, res, next) => {
   try {
-    const { infoHash, userId } = req.params;
+    const { infoHash } = req.params;
+    const userId = req.userId;
 
-    const user = await User.findOne({ uid: userId }).lean();
-
+    const user = await User.findOne({ _id: userId }).lean();
     if (!user) {
       res.status(401).send(`User does not exist`);
       return;
     }
 
     const torrent = await Torrent.findOne({ infoHash }).lean();
-    const { binary } = torrent;
-    const parsed = bencode.decode(Buffer.from(binary, "base64"));
+    if (!torrent) {
+      return res.status(404).send("Torrent not found");
+    }
 
+    const parsed = bencode.decode(Buffer.from(torrent.binary, "base64"));
+    
     parsed.announce = `${process.env.SQ_BASE_URL}/sq/${user.uid}/announce`;
     delete parsed["announce-list"];
     parsed.info.private = 1;
