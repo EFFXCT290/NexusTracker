@@ -13,6 +13,7 @@ import {
   editTorrent,
   toggleBookmark,
   listTags,
+  downloadTorrent,
 } from "../controllers/torrent";
 import { createReport } from "../controllers/moderation";
 
@@ -33,5 +34,6 @@ export default (tracker) => {
   router.get("/all", listAll);
   router.get("/search", searchTorrents(tracker));
   router.get("/tags", listTags);
+  router.get("/download/:infoHash", downloadTorrent);
   return router;
 };
