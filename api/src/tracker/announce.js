@@ -15,6 +15,15 @@ const handleAnnounce = async (req, res) => {
   const userId = req.originalUrl.split("/")[2];
   req.userId = userId;
 
+  // Early validation of URL format
+  if (!userId) {
+    const response = bencode.encode({
+      "failure reason": "Invalid announce URL format",
+    });
+    res.send(response);
+    return;
+  }
+
   console.log(`[DEBUG] userId: ${userId}`);
 
   const user = await User.findOne({ uid: userId }).lean();
@@ -40,10 +49,37 @@ const handleAnnounce = async (req, res) => {
   const q = req.url.split("?")[1];
   const params = qs.parse(q, { decoder: unescape });
 
-  const infoHash = binaryToHex(params.info_hash);
+  // Strict validation of announce parameters
+  if (!params || !params.info_hash || !params.peer_id) {
+    const response = bencode.encode({
+      "failure reason": "Missing required announce parameters",
+    });
+    res.send(response);
+    return;
+  }
 
-  console.log(`[DEBUG] query: ${JSON.stringify(params)}`);
-  console.log(`[DEBUG] infoHash: ${infoHash}`);
+  const infoHash = binaryToHex(params.info_hash);
+  const peerId = Buffer.from(params.peer_id, 'binary').toString('hex');
+
+  // Strict validation after conversion
+  if (!infoHash || !peerId || infoHash === 'null' || peerId === 'null') {
+    const response = bencode.encode({
+      "failure reason": "Invalid info_hash or peer_id values",
+    });
+    res.send(response);
+    return;
+  }
+
+  // Add debug logging
+  console.log(`[DEBUG] Announce validation passed:`, {
+    userId,
+    infoHash,
+    peerId,
+    event: params.event
+  });
+
+  // Add debug logging for peer_id
+  console.log(`[DEBUG] Processing announce with peerId: ${peerId}`);
 
   const torrent = await Torrent.findOne({ infoHash }).lean();
 
@@ -62,6 +98,10 @@ const handleAnnounce = async (req, res) => {
 
   console.log(`[DEBUG] user ratio: ${ratio}`);
   console.log(`[DEBUG] user hit'n'runs: ${hitnruns}`);
+
+  const isFreeleech = torrent?.freeleech || false;
+
+  console.log(`[DEBUG] Torrent freeleech status: ${isFreeleech}`);
 
   // if users ratio is below the minimum threshold, and they are trying to download, deny announce
   if (
@@ -100,18 +140,23 @@ const handleAnnounce = async (req, res) => {
   const prevProgressRecord = await Progress.findOne({
     userId: user._id,
     infoHash,
+    peerId,
   }).lean();
 
+  // Calculate the actual delta since last announce
   const alreadyUploadedSession = prevProgressRecord?.uploaded?.session ?? 0;
-  const uploadDeltaSession =
+  const uploadDeltaSession = 
     uploaded >= alreadyUploadedSession ? uploaded - alreadyUploadedSession : 0;
 
   const alreadyDownloadedSession = prevProgressRecord?.downloaded?.session ?? 0;
-  const downloadDeltaSession =
-    downloaded >= alreadyDownloadedSession
-      ? downloaded - alreadyDownloadedSession
-      : 0;
+  const downloadDeltaSession = 
+    downloaded >= alreadyDownloadedSession ? downloaded - alreadyDownloadedSession : 0;
 
+  console.log(`[DEBUG] Previous upload total: ${prevProgressRecord?.uploaded?.total ?? 0}`);
+  console.log(`[DEBUG] Upload delta this session: ${uploadDeltaSession}`);
+  console.log(`[DEBUG] Current upload amount: ${uploaded}`);
+
+  // Calculate bonus points
   const [sumUploaded] = await Progress.aggregate([
     {
       $match: {
@@ -132,6 +177,48 @@ const handleAnnounce = async (req, res) => {
 
   const gbAfterUpload = Math.floor((bytes + uploadDeltaSession) / BYTES_GB);
 
+  // Update progress record
+  await Progress.findOneAndUpdate(
+    { 
+      userId: user._id, 
+      infoHash, 
+      peerId,
+      $and: [
+        { infoHash: { $ne: null } },
+        { peerId: { $ne: null } }
+      ]
+    },
+    {
+      $set: {
+        userId: user._id,
+        infoHash,
+        peerId,
+        uploaded: {
+          session: uploaded,
+          total: (prevProgressRecord?.uploaded?.total ?? 0) + uploadDeltaSession,
+        },
+        downloaded: {
+          session:
+            torrent?.freeleech || process.env.SQ_SITE_WIDE_FREELEECH === true
+              ? 0
+              : downloaded,
+          total:
+            torrent?.freeleech || process.env.SQ_SITE_WIDE_FREELEECH === true
+              ? 0
+              : (prevProgressRecord?.downloaded?.total ?? 0) + downloadDeltaSession,
+        },
+        left: Number(params.left),
+        lastSeen: new Date(),
+        updatedAt: new Date()
+      },
+    },
+    { 
+      upsert: true,
+      new: true 
+    }
+  );
+
+  // Award bonus points if threshold reached
   if (gbAfterUpload >= nextGb) {
     const deltaGb = gbAfterUpload - currentGb;
     await User.findOneAndUpdate(
@@ -140,45 +227,8 @@ const handleAnnounce = async (req, res) => {
     );
   }
 
-  await Progress.findOneAndUpdate(
-    { userId: user._id, infoHash },
-    {
-      $set: {
-        userId: user._id,
-        infoHash,
-        uploaded: {
-          session: uploaded,
-          total:
-            (prevProgressRecord?.uploaded?.total ?? 0) + uploadDeltaSession,
-        },
-        left: Number(params.left),
-      },
-    },
-    { upsert: true }
-  );
-
-  await Progress.findOneAndUpdate(
-    { userId: user._id, infoHash },
-    {
-      $set: {
-        userId: user._id,
-        infoHash,
-        downloaded: {
-          session:
-            torrent.freeleech || process.env.SQ_SITE_WIDE_FREELEECH === true
-              ? prevProgressRecord?.downloaded?.session ?? 0
-              : downloaded,
-          total:
-            torrent.freeleech || process.env.SQ_SITE_WIDE_FREELEECH === true
-              ? prevProgressRecord?.downloaded?.total ?? 0
-              : (prevProgressRecord?.downloaded?.total ?? 0) +
-                downloadDeltaSession,
-        },
-        left: Number(params.left),
-      },
-    },
-    { upsert: true }
-  );
+  const updatedProgress = await Progress.findOne({ userId: user._id, infoHash, peerId });
+  console.log(`[DEBUG] New upload total: ${updatedProgress.uploaded.total}`);
 
   if (params.event === "completed") {
     await Torrent.findOneAndUpdate({ infoHash }, { $inc: { downloads: 1 } });
