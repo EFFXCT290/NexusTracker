@@ -3,50 +3,68 @@ import User from '../schema/user';
 
 export const cleanupOldProgressRecords = async () => {
   try {
-    const cutoffDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const cutoffDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
     
-    // First, get all progress records that will be cleaned up
-    const oldRecords = await Progress.find({
-      lastSeen: { $lt: cutoffDate },
-      $or: [
-        { 'uploaded.session': 0 },
-        { 'downloaded.session': 0 }
-      ]
-    });
-
-    // Group by user and update their total stats before deletion
-    const userStats = {};
-    oldRecords.forEach(record => {
-      if (!userStats[record.userId]) {
-        userStats[record.userId] = {
-          uploaded: 0,
-          downloaded: 0
-        };
+    // First, aggregate total stats per user before cleanup
+    const userTotals = await Progress.aggregate([
+      {
+        $match: {
+          updatedAt: { $lt: cutoffDate },
+          left: { $gt: 0 },
+          infoHash: { $ne: null },
+          peerId: { $ne: null }
+        }
+      },
+      {
+        $group: {
+          _id: '$userId',
+          totalUploaded: { $sum: '$uploaded.total' },
+          totalDownloaded: { $sum: '$downloaded.total' }
+        }
       }
-      userStats[record.userId].uploaded += record.uploaded?.total || 0;
-      userStats[record.userId].downloaded += record.downloaded?.total || 0;
-    });
+    ]);
 
-    // Update user stats if needed
-    for (const [userId, stats] of Object.entries(userStats)) {
-      await User.findByIdAndUpdate(userId, {
+    // Update user stats
+    for (const userTotal of userTotals) {
+      await User.findByIdAndUpdate(userTotal._id, {
         $inc: {
-          uploaded: stats.uploaded,
-          downloaded: stats.downloaded
+          uploaded: userTotal.totalUploaded,
+          downloaded: userTotal.totalDownloaded
         }
       });
     }
 
-    // Now safe to delete old records
+    // Delete old progress records
     const result = await Progress.deleteMany({
-      lastSeen: { $lt: cutoffDate },
-      $or: [
-        { 'uploaded.session': 0 },
-        { 'downloaded.session': 0 }
-      ]
+      updatedAt: { $lt: cutoffDate },
+      left: { $gt: 0 },
+      infoHash: { $ne: null },
+      peerId: { $ne: null }
     });
 
-    console.log(`[sq] Cleaned up ${result.deletedCount} inactive peer records while preserving all user stats and ratios`);
+    console.log(`[nx] Cleaned up ${result.deletedCount} inactive peer records`);
+
+    // Add to cleanup function
+    const duplicates = await Progress.aggregate([
+      {
+        $group: {
+          _id: { userId: "$userId", infoHash: "$infoHash", peerId: "$peerId" },
+          count: { $sum: 1 },
+          docs: { $push: "$_id" }
+        }
+      },
+      {
+        $match: {
+          count: { $gt: 1 }
+        }
+      }
+    ]);
+
+    for (const dup of duplicates) {
+      // Keep the newest record, delete others
+      const [keep, ...remove] = dup.docs;
+      await Progress.deleteMany({ _id: { $in: remove } });
+    }
   } catch (error) {
     console.error('[nx] Error cleaning up peer progress records:', error);
   }
