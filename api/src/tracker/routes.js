@@ -3,6 +3,7 @@ import bencode from "bencode";
 import handleAnnounce from "./announce";
 import Progress from '../schema/progress';
 import User from '../schema/user';
+import Torrent from '../schema/torrent';
 
 const createTrackerRoute = (action, onRequest) => async (req, res) => {
   if (action === "announce") {
@@ -20,6 +21,12 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
   let params;
   try {
     params = parseHttpRequest(req, { action, trustProxy: true });
+    
+    // Add validation for required parameters
+    if (!params.info_hash || !params.peer_id) {
+      throw new Error("Missing required parameters");
+    }
+
     params.httpReq = req;
     params.httpRes = res;
 
@@ -33,11 +40,11 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
     params.user = user;
     const now = new Date();
     
-    // Find previous progress record
+    // Find previous progress record with peerId
     const prevProgressRecord = await Progress.findOne({
       userId: user._id,
-      peerId: params.peerId,
-      infoHash: params.infoHash,
+      peerId: params.peer_id,
+      infoHash: params.info_hash,
     }).lean();
 
     // Calculate deltas safely
@@ -46,21 +53,33 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
     const uploadDeltaSession = Math.max(0, uploaded - (prevProgressRecord?.uploaded?.session || 0));
     const downloadDeltaSession = Math.max(0, downloaded - (prevProgressRecord?.downloaded?.session || 0));
 
+    // Add torrent check for freeleech
+    const torrent = await Torrent.findOne({ infoHash: params.info_hash }).lean();
+    const isFreeleech = torrent?.freeleech || process.env.SQ_SITE_WIDE_FREELEECH === true;
+
     // Update current peer's progress
     await Progress.findOneAndUpdate(
-      { userId: user._id, peerId: params.peerId, infoHash: params.infoHash },
+      { 
+        userId: user._id, 
+        peerId: params.peer_id, 
+        infoHash: params.info_hash,
+        $and: [
+          { infoHash: { $ne: null } },
+          { peerId: { $ne: null } }
+        ]
+      },
       {
         $set: {
           userId: user._id,
-          infoHash: params.infoHash,
-          peerId: params.peerId,
+          infoHash: params.info_hash,
+          peerId: params.peer_id,
           uploaded: {
             session: uploaded,
             total: (prevProgressRecord?.uploaded?.total || 0) + uploadDeltaSession,
           },
           downloaded: {
-            session: downloaded,
-            total: (prevProgressRecord?.downloaded?.total || 0) + downloadDeltaSession,
+            session: isFreeleech ? 0 : downloaded,
+            total: isFreeleech ? 0 : (prevProgressRecord?.downloaded?.total || 0) + downloadDeltaSession,
           },
           left: Number(params.left) || 0,
           lastSeen: now,
@@ -74,7 +93,12 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
       {
         $match: {
           userId: user._id,
-          infoHash: params.infoHash,
+          infoHash: params.info_hash,
+          peerId: params.peer_id,
+          $and: [
+            { infoHash: { $ne: null } },
+            { peerId: { $ne: null } }
+          ]
         },
       },
       {
@@ -99,9 +123,9 @@ const createTrackerRoute = (action, onRequest) => async (req, res) => {
     // Clean up inactive peers
     await Progress.deleteMany({
       userId: user._id,
-      infoHash: params.infoHash,
+      infoHash: params.info_hash,
       lastSeen: { $lt: new Date(now - 24 * 60 * 60 * 1000) },
-      peerId: { $ne: params.peerId },
+      peerId: { $ne: params.peer_id },
       'uploaded.session': 0,
       'downloaded.session': 0
     });
