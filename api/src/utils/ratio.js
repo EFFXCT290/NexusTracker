@@ -1,15 +1,26 @@
 import Progress from "../schema/progress";
 
 export const getUserRatio = async (_id) => {
-  let totalUp = 0;
-  let totalDown = 0;
+  // Use aggregate instead of find for better performance
+  const [totals] = await Progress.aggregate([
+    {
+      $match: {
+        userId: _id,
+        infoHash: { $ne: null },
+        peerId: { $ne: null }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalUp: { $sum: "$uploaded.total" },
+        totalDown: { $sum: "$downloaded.total" }
+      }
+    }
+  ]);
 
-  const userTorrents = await Progress.find({ userId: _id }).lean();
-
-  for (const userTorrent of userTorrents) {
-    totalUp += Number(userTorrent.uploaded.total);
-    totalDown += Number(userTorrent.downloaded.total);
-  }
+  const totalUp = totals?.totalUp ?? 0;
+  const totalDown = totals?.totalDown ?? 0;
 
   return {
     up: totalUp,
