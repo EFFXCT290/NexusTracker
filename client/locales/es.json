@@ -89,6 +89,7 @@
   "errIfErrorPersist": "Si el error persiste, por favor",
   "errReportIt": "informa",
   "errForNow": "Por ahora,",
+  "freeLeechEnabled": "¡Freeleech activado!",
   "indexLatestAnnounce": "Último anuncio",
   "indexLatestTorrents": "Últimos torrents",
   "indexSearch": "Buscar",
@@ -313,5 +314,12 @@
   "resendVerificationEmail": "Reenviar correo de verificación",
   "success": "Éxito",
   "error": "Error",
-  "verificationEmailResent": "Correo de verificación reenviado a tu dirección"
+  "verificationEmailResent": "Correo de verificación reenviado a tu dirección",
+  "commentDeleteConfirm": "¿Estás seguro de que quieres eliminar este comentario?",
+  "commentDeleteSuccess": "Comentario eliminado exitosamente",
+  "commentDeleteFailed": "No se pudo eliminar el comentario",
+  "commentDeleteError": "Error al eliminar el comentario",
+  "commentBy": "Por",
+  "commentDelete": "Eliminar",
+  "commentDeleting": "Eliminando..."
 }

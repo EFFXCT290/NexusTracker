@@ -25,6 +25,7 @@ const Announcement = ({ announcement, token, userRole }) => {
   const [pinned, setPinned] = useState(announcement.pinned);
   const [comments, setComments] = useState(announcement.comments);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   const { addNotification } = useContext(NotificationContext);
   const { setLoading } = useContext(LoadingContext);
@@ -60,18 +61,13 @@ const Announcement = ({ announcement, token, userRole }) => {
         throw new Error(reason);
       }
 
-      addNotification("success"`${getLocaleString("annAnnounceDelSuccess")}`);
-
+      addNotification("success", getLocaleString("annAnnounceDelSuccess"));
       router.push("/announcements");
     } catch (e) {
-      addNotification(
-        "error",
-        `${getLocaleString("annCouldNotDelAnnounce")}: ${e.message}`
-      );
-      console.error(e);
+      addNotification("error", `${getLocaleString("annCouldNotDelAnnounce")}: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handlePin = async () => {
@@ -110,7 +106,6 @@ const Announcement = ({ announcement, token, userRole }) => {
           pinned ? getLocaleString("annUnpin") : getLocaleString("annPin")
         } announcement: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -142,7 +137,6 @@ const Announcement = ({ announcement, token, userRole }) => {
       }
 
       addNotification("success", `${getLocaleString("reqCommentPostSuccess")}`);
-
       setComments((c) => {
         const newComment = {
           comment: form.get("comment"),
@@ -153,16 +147,53 @@ const Announcement = ({ announcement, token, userRole }) => {
         };
         return [newComment, ...c];
       });
-
       commentInputRef.current.value = "";
     } catch (e) {
       addNotification(
         "error",
         `${getLocaleString("reqCommentNotPost")}: ${e.message}`
       );
-      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    setLoading(true);
+    
+    // Add a flag to track if the comment is being deleted
+    if (comments.every(comment => comment._id !== commentId)) {
+        // Comment already deleted, prevent duplicate request
+        setLoading(false);
+        return;
     }
 
+    try {
+        const deleteRes = await fetch(`${SQ_API_URL}/announcements/comment/${commentId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (deleteRes.ok) {
+            addNotification("success", getLocaleString("Comment deleted successfully"));
+            setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+            
+            // Return early to prevent further processing
+            setLoading(false);
+            return;
+        } else {
+            const reason = await deleteRes.text();
+            throw new Error(reason);
+        }
+    } catch (e) {
+        // Only show error if it's not a 404 for an already deleted comment
+        if (!e.message.includes("Cannot DELETE")) {
+            addNotification("error", `${getLocaleString("Could not delete comment")}: ${e.message}`);
+        }
+    }
+    
     setLoading(false);
   };
 
@@ -234,7 +265,12 @@ const Announcement = ({ announcement, token, userRole }) => {
       </Box>
       <Box borderBottom="1px solid" borderColor="border" pb={5} mb={5}>
         <MarkdownBody>
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]}
+            components={{
+              p: ({children}) => <p style={{whiteSpace: 'pre-line'}}>{children}</p>
+            }}
+          >
             {announcement.body}
           </ReactMarkdown>
         </MarkdownBody>
@@ -269,8 +305,13 @@ const Announcement = ({ announcement, token, userRole }) => {
           <Box mt={5}>
             {comments.map((comment) => (
               <Comment
-                key={comment._id || comment.created}
+                key={comment._id}
                 comment={{ ...comment, announcement }}
+                token={token}
+                userRole={userRole}
+                onCommentDeleted={(commentId) => {
+                  setComments(prevComments => prevComments.filter(c => c._id !== commentId));
+                }}
               />
             ))}
           </Box>

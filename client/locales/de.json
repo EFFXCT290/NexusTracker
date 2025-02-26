@@ -89,6 +89,7 @@
   "errIfErrorPersist": "Wenn der Fehler weiterhin besteht, bitte",
   "errReportIt": "Melde ihn",
   "errForNow": "Für jetzt,",
+  "freeLeechEnabled": "Site-weiter Freeleech aktiviert!",
   "indexLatestAnnounce": "Letzte Bekanntmachungen",
   "indexLatestTorrents": "Letzte Torrents",
   "indexSearch": "Suche",
@@ -311,5 +312,12 @@
   "resendVerificationEmail": "Verifizierung E-Mail erneut senden",
   "success": "Erfolg",
   "error": "Fehler",
-  "verificationEmailResent": "Verifizierung E-Mail wurde erfolgreich erneut gesendet"
+  "verificationEmailResent": "Verifizierung E-Mail wurde erfolgreich erneut gesendet",
+  "commentDeleteConfirm": "Möchten Sie diesen Kommentar wirklich löschen?",
+  "commentDeleteSuccess": "Kommentar erfolgreich gelöscht",
+  "commentDeleteFailed": "Kommentar konnte nicht gelöscht werden",
+  "commentDeleteError": "Fehler beim Löschen des Kommentars",
+  "commentBy": "Von",
+  "commentDelete": "Löschen",
+  "commentDeleting": "Wird gelöscht..."
 }

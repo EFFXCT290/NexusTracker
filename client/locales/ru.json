@@ -89,7 +89,8 @@
   "errIfErrorPersist": "Если ошибка повторится, пожалуйста,",
   "errReportIt": "напишите об этом",
   "errForNow": "На данный момент,",
-  "indexLatestAnnounce": "Последний анонс",
+  "freeLeechEnabled": "Общесайтовый фрилич активирован!",
+  "indexLatestAnnounce": "Последнее объявление",
   "indexLatestTorrents": "Последние торренты",
   "indexSearch": "Поиск",
   "indexSearchTorrents": "Поиск торрентов",
@@ -309,5 +310,12 @@
   "resendVerificationEmail": "Отправить повторное подтверждение электронной почты",
   "success": "Успех",
   "error": "Ошибка",
-  "verificationEmailResent": "Электронная почта подтверждения отправлена на ваш адрес"
+  "verificationEmailResent": "Электронная почта подтверждения отправлена на ваш адрес",
+  "commentDeleteConfirm": "Вы уверены, что хотите удалить этот комментарий?",
+  "commentDeleteSuccess": "Комментарий успешно удален",
+  "commentDeleteFailed": "Не удалось удалить комментарий",
+  "commentDeleteError": "Ошибка при удалении комментария",
+  "commentBy": "От",
+  "commentDelete": "Удалить",
+  "commentDeleting": "Удаление..."
 }

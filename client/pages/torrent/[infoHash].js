@@ -204,17 +204,15 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
       }
 
       addNotification("success", `${getLocaleString("torrTorrEditSuccess")}`);
-
       window.location.reload();
     } catch (e) {
       addNotification(
         "error",
         `${getLocaleString("torrCouldEditTorr")}: ${e.message}`
       );
-      console.error(e);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleDelete = async () => {
@@ -244,10 +242,9 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("torrCouldNotDelTorr")}: ${e.message}`
       );
-      console.error(e);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleComment = async (e) => {
@@ -294,7 +291,6 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("reqCommentNotPost")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -349,7 +345,6 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("torrCouldNotSubmitVote")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -391,7 +386,6 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("torrCouldNotSubmitReport")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -424,7 +418,6 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("torrCouldNotToggleFL")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -453,17 +446,15 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "success",
         `${getLocaleString("torrTorrRemFromGroupSuccess")}`
       );
-
       setHasGroup(false);
     } catch (e) {
       addNotification(
         "error",
         `${getLocaleString("torrCouldNotRemTorrFromGroup")}: ${e.message}`
       );
-      console.error(e);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleBookmark = async () => {
@@ -500,7 +491,6 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
         "error",
         `${getLocaleString("torrCouldNotBookmarkTorr")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);
@@ -893,7 +883,7 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
       <Text as="h2" mb={4}>
         {getLocaleString("userComments")}
       </Text>
-      <form onSubmit={userId ? handleComment : undefined}>
+      <form onSubmit={handleComment}>
         <Input
           ref={commentInputRef}
           name="comment"
@@ -906,16 +896,19 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
           {getLocaleString("reqPost")}
         </Button>
       </form>
-      {!!comments?.length && (
-        <Box mt={5}>
-          {comments.map((comment) => (
-            <Comment
-              key={comment._id || comment.created}
-              comment={{ ...comment, torrent }}
-            />
-          ))}
-        </Box>
-      )}
+      <div className="comments-section">
+        {comments.map(comment => (
+          <Comment
+            key={comment._id}
+            comment={{ ...comment, torrent }}
+            token={token}
+            userRole={userRole}
+            onCommentDeleted={(commentId) => {
+              setComments(prevComments => prevComments.filter(c => c._id !== commentId));
+            }}
+          />
+        ))}
+      </div>
       {showReportModal && (
         <Modal close={() => setShowReportModal(false)}>
           <form onSubmit={handleReport}>

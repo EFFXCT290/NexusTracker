@@ -6,6 +6,10 @@ const Body = styled.div(() =>
     color: "text",
     wordBreak: "break-word",
     fontSize: 2,
+    "p": {
+      whiteSpace: "pre-line",
+      margin: 0
+    },
     "> * + *": {
       mt: 3,
     },

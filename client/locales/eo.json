@@ -89,6 +89,7 @@
   "errIfErrorPersist": "Se la eraro daŭras, bonvolu",
   "errReportIt": "raportu ĝin",
   "errForNow": "Nuntempe,",
+  "freeLeechEnabled": "Tutreta senpaga elŝuto ebligita!",
   "indexLatestAnnounce": "Lasta anonco",
   "indexLatestTorrents": "Lastaj torentoj",
   "indexSearch": "Serĉi",
@@ -311,5 +312,11 @@
   "resendVerificationEmail": "Sendi verifikacian retpoŝton denove",
   "success": "Sukceso",
   "error": "Eraro",
-  "verificationEmailResent": "Verifikaciana retpoŝto estis sendita denove al via adreso"
+  "verificationEmailResent": "Verifikaciana retpoŝto estis sendita denove al via adreso",
+  "commentDeleteConfirm": "Ĉu vi certas, ke vi volas forigi ĉi tiun komenton?",
+  "commentDeleteSuccess": "Komento sukcese forigita",
+  "commentDeleteFailed": "Malsukcesis forigi komenton",
+  "commentDeleteError": "Eraro dum forigo de komento",
+  "commentDelete": "Forigi",
+  "commentDeleting": "Forigante..."
 }

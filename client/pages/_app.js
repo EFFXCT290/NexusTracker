@@ -336,7 +336,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
                         iconWrapperProps={{ justifyContent: "flex-end" }}
                         fontSize={[0, 2]}
                       >
-                        Site-wide freeleech enabled!
+                        {getLocaleString(locale)("freeLeechEnabled")}
                       </Text>
                     )}
                   </Box>

@@ -89,6 +89,7 @@
   "errIfErrorPersist": "如果错误持续存在，请",
   "errReportIt": "报告它",
   "errForNow": "目前",
+  "freeLeechEnabled": "全站 Free 下载已启用！",
   "indexLatestAnnounce": "最新公告",
   "indexLatestTorrents": "最新种子",
   "indexSearch": "搜索",
@@ -313,5 +314,12 @@
   "resendVerificationEmail": "重新发送验证邮件",
   "success": "成功",
   "error": "错误",
-  "verificationEmailResent": "验证邮件已重新发送至您的地址"
+  "verificationEmailResent": "验证邮件已重新发送至您的地址",
+  "commentDeleteConfirm": "您确定要删除此评论吗？",
+  "commentDeleteSuccess": "评论删除成功",
+  "commentDeleteFailed": "评论删除失败",
+  "commentDeleteError": "删除评论时出错",
+  "commentBy": "来自",
+  "commentDelete": "删除",
+  "commentDeleting": "删除中..."
 }

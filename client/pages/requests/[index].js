@@ -51,7 +51,6 @@ const Request = ({ request, token, user }) => {
 
   const handleDelete = async () => {
     setLoading(true);
-
     try {
       const deleteRes = await fetch(`${SQ_API_URL}/requests/${request.index}`, {
         method: "DELETE",
@@ -66,38 +65,34 @@ const Request = ({ request, token, user }) => {
       }
 
       addNotification("success", `${getLocaleString("reqRequestDelSuccess")}`);
-
       router.push("/requests");
     } catch (e) {
-      addNotification(
-        "error",
-        `${getLocaleString("reqCouldNotDelReq")}: ${e.message}`
-      );
-      console.error(e);
+      addNotification("error", `${getLocaleString("reqCouldNotDelReq")}: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
+  /**
+   * Handles the submission of a comment.
+   * Sends the comment to the server and updates the UI.
+   */
   const handleComment = async (e) => {
     e.preventDefault();
     setLoading(true);
     const form = new FormData(e.target);
 
     try {
-      const commentRes = await fetch(
-        `${SQ_API_URL}/requests/comment/${request._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            comment: form.get("comment"),
-          }),
-        }
-      );
+      const commentRes = await fetch(`${SQ_API_URL}/requests/comment/${request._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          comment: form.get("comment"),
+        }),
+      });
 
       if (commentRes.status !== 200) {
         const reason = await commentRes.text();
@@ -105,7 +100,6 @@ const Request = ({ request, token, user }) => {
       }
 
       addNotification("success", `${getLocaleString("reqCommentPostSuccess")}`);
-
       setComments((c) => {
         const newComment = {
           comment: form.get("comment"),
@@ -116,17 +110,12 @@ const Request = ({ request, token, user }) => {
         };
         return [newComment, ...c];
       });
-
       commentInputRef.current.value = "";
     } catch (e) {
-      addNotification(
-        "error",
-        `${getLocaleString("reqCommentNotPost")}: ${e.message}`
-      );
-      console.error(e);
+      addNotification("error", `${getLocaleString("reqCommentNotPost")}: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleSuggestion = async (e) => {
@@ -135,84 +124,60 @@ const Request = ({ request, token, user }) => {
     const form = new FormData(e.target);
 
     try {
-      const suggestRes = await fetch(
-        `${SQ_API_URL}/requests/suggest/${request._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            infoHash: form.get("infoHash"),
-          }),
-        }
-      );
+      const suggestRes = await fetch(`${SQ_API_URL}/requests/suggest/${request._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          infoHash: form.get("infoHash"),
+        }),
+      });
 
       if (suggestRes.status !== 200) {
         const reason = await suggestRes.text();
         throw new Error(reason);
       }
 
-      addNotification(
-        "success",
-        `${getLocaleString("reqSuggestionAddSuccess")}`
-      );
-
+      addNotification("success", `${getLocaleString("reqSuggestionAddSuccess")}`);
       const { torrent } = await suggestRes.json();
       setCandidates((existing) => [torrent, ...existing]);
-
       setShowSuggestModal(false);
     } catch (e) {
-      addNotification(
-        "error",
-        `${getLocaleString("reqSuggestionNotAdded")}: ${e.message}`
-      );
-      console.error(e);
+      addNotification("error", `${getLocaleString("reqSuggestionNotAdded")}: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleAccept = async (infoHash) => {
     setLoading(true);
-
     try {
-      const acceptRes = await fetch(
-        `${SQ_API_URL}/requests/accept/${request._id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            infoHash,
-          }),
-        }
-      );
+      const acceptRes = await fetch(`${SQ_API_URL}/requests/accept/${request._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          infoHash,
+        }),
+      });
 
       if (acceptRes.status !== 200) {
         const reason = await acceptRes.text();
         throw new Error(reason);
       }
 
-      addNotification(
-        "success",
-        `${getLocaleString("reqSuggestionAcceptSuccess")}`
-      );
-
+      addNotification("success", `${getLocaleString("reqSuggestionAcceptSuccess")}`);
       const { torrent } = await acceptRes.json();
       setFulfilledBy(torrent);
     } catch (e) {
-      addNotification(
-        "error",
-        `${getLocaleString("reqCouldNotAcceptSuggestion")}: ${e.message}`
-      );
-      console.error(e);
+      addNotification("error", `${getLocaleString("reqCouldNotAcceptSuggestion")}: ${e.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -366,9 +331,10 @@ const Request = ({ request, token, user }) => {
             name="comment"
             label={getLocaleString("reqPostAComment")}
             rows="5"
+            disabled={!user}
             mb={4}
           />
-          <Button display="block" ml="auto">
+          <Button disabled={!user} display="block" ml="auto">
             {getLocaleString("reqPost")}
           </Button>
         </form>
@@ -376,8 +342,13 @@ const Request = ({ request, token, user }) => {
           <Box mt={5}>
             {comments.map((comment) => (
               <Comment
-                key={comment._id || comment.created}
+                key={comment._id}
                 comment={{ ...comment, request }}
+                token={token}
+                userRole={user.role}
+                onCommentDeleted={(commentId) => {
+                  setComments(prevComments => prevComments.filter(c => c._id !== commentId));
+                }}
               />
             ))}
           </Box>
@@ -419,7 +390,7 @@ export const getServerSideProps = withAuthServerSideProps(
       serverRuntimeConfig: { SQ_JWT_SECRET },
     } = getConfig();
 
-    const { id } = jwt.verify(token, SQ_JWT_SECRET);
+    const { id, role } = jwt.verify(token, SQ_JWT_SECRET);
 
     try {
       const requestRes = await fetch(`${SQ_API_URL}/requests/${index}`, {
@@ -432,7 +403,7 @@ export const getServerSideProps = withAuthServerSideProps(
         throw "banned";
       }
       const request = await requestRes.json();
-      return { props: { request, token, user: id } };
+      return { props: { request, token, user: { id, role } } };
     } catch (e) {
       if (e === "banned") throw "banned";
       return { props: {} };

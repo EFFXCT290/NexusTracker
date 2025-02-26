@@ -70,7 +70,6 @@ const Login = () => {
         "error",
         `${getLocaleString("logInFailed")}: ${e.message}`
       );
-      console.error(e);
     }
 
     setLoading(false);

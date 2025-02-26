@@ -15,7 +15,9 @@ import {
   listTags,
   downloadTorrent,
 } from "../controllers/torrent";
+import { deleteComment } from "../controllers/Comment";
 import { createReport } from "../controllers/moderation";
+import auth from "../middleware/auth";
 
 const router = express.Router();
 
@@ -35,5 +37,8 @@ export default (tracker) => {
   router.get("/search", searchTorrents(tracker));
   router.get("/tags", listTags);
   router.get("/download/:infoHash", downloadTorrent);
+  router.delete('/comment/:commentId', auth, async (req, res) => {
+    return deleteComment(req, res);
+  });
   return router;
 };

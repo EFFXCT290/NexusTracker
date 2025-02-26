@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 import User from "../schema/user";
 
+/**
+ * Middleware to authenticate users based on JWT.
+ * Checks for the presence of a token and verifies it.
+ * Sets user ID and role in the request object if valid.
+ */
 const auth = async (req, res, next) => {
   if (req.headers.authorization) {
     const token = req.headers.authorization.replace("Bearer ", "");
@@ -10,28 +15,27 @@ const auth = async (req, res, next) => {
         const user = await User.findOne({ _id: decoded.id });
         if (user) {
           if (user.banned) {
-            res.status(403).send("User is banned");
-            return;
+            return res.status(403).send("User is banned");
           }
           req.userId = user._id;
           req.userRole = user.role;
-          next();
+          return next();
         } else {
-          res.sendStatus(404);
+          return res.sendStatus(404);
         }
       } else {
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
     } catch (err) {
-      res.status(500).send(err);
+      return next(err);
     }
   } else if (
     req.headers["x-sq-public-access"] === "true" &&
     req.headers["x-sq-server-secret"] === process.env.SQ_SERVER_SECRET
   ) {
-    next();
+    return next();
   } else {
-    res.sendStatus(401);
+    return res.sendStatus(401);
   }
 };
 
