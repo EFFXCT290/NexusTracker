@@ -29,8 +29,6 @@ export const resendVerification = (mail) => async (req, res, next) => {
       { algorithm: 'HS256' }
     );
 
-    // Log token format for debugging (remove in production)
-    console.log('Generated token:', emailVerificationToken);
 
     await sendVerificationEmail(mail, user.email, emailVerificationToken);
 

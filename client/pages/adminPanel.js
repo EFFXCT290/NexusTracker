@@ -131,7 +131,6 @@ const AdminPanel = ({ token, userRole }) => {
   const fetchUsers = async (page = 0, searchTerm = search) => {
     try {
       setLoading(true);
-      console.log("Token:", token);
       
       const queryParams = new URLSearchParams({
         page,
@@ -152,7 +151,6 @@ const AdminPanel = ({ token, userRole }) => {
       );
       
       const data = await res.json();
-      console.log(data);
       
       setUsers(data.users || []);
       setPagination(data.pagination || pagination);
@@ -182,7 +180,6 @@ const AdminPanel = ({ token, userRole }) => {
       }
       
       const data = await res.json();
-      console.log('Stats data:', data);
       setStats(data);
       
     } catch (error) {

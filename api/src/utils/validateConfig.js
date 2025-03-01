@@ -117,7 +117,7 @@ const validateConfig = async (config) => {
       ...config.secrets,
     };
     await configSchema.validate(config);
-    console.log("[sq] configuration is valid");
+    console.log("[nx] configuration is valid");
   } catch (e) {
     console.error("[nx] ERROR: invalid configuration:", e.message);
     process.exit(1);
