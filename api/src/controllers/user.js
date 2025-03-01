@@ -10,6 +10,17 @@ import { getTorrentsPage } from "./torrent";
 import { getUserRatio } from "../utils/ratio";
 import { getUserHitNRuns } from "../utils/hitnrun";
 import { BYTES_GB } from "../tracker/announce";
+import express from "express";
+
+const router = express.Router();
+
+export default (tracker) => {
+  router.get("/", fetchAllUsers); // New endpoint to list all users
+  router.get("/:username", fetchUser(tracker));
+  router.post("/ban/:username", banUser);
+  router.post("/unban/:username", unbanUser);
+  return router;
+};
 
 export const sendVerificationEmail = async (mail, address, token) => {
   await mail.sendMail({
@@ -1143,6 +1154,79 @@ export const resendVerificationEmail = (mail) => async (req, res, next) => {
     }
 
     res.sendStatus(200);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const fetchAllUsers = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const searchQuery = req.query.search || '';
+    
+    // Build the search filter
+    const filter = {};
+    if (searchQuery) {
+      filter.$or = [
+        { username: { $regex: searchQuery, $options: 'i' } },
+        { email: { $regex: searchQuery, $options: 'i' } }
+      ];
+    }
+    
+    // Count total documents for pagination info
+    const total = await User.countDocuments(filter);
+    
+    // Fetch users with pagination
+    const users = await User.find(filter)
+      .sort({ created: -1 })
+      .skip(page * limit)
+      .limit(limit);
+    
+    res.json({
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const deleteUser = async (req, res, next) => {
+  try {
+    // Only admins can delete users
+    if (req.userRole !== "admin") {
+      return res.status(403).send("Only administrators can delete users");
+    }
+
+    const { username } = req.params;
+    
+    // Don't allow deleting the admin user
+    if (username === "admin") {
+      return res.status(403).send("Cannot delete the admin user");
+    }
+
+    // Find the user
+    const user = await User.findOne({ username });
+    
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Delete the user
+    await User.deleteOne({ username });
+    
+    // You might want to also delete related data like comments, torrents, etc.
+    // For example:
+    // await Comment.deleteMany({ userId: user._id });
+    // await Torrent.deleteMany({ uploadedBy: user._id });
+
+    res.status(200).send("User deleted successfully");
   } catch (e) {
     next(e);
   }

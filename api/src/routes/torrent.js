@@ -42,3 +42,7 @@ export default (tracker) => {
   });
   return router;
 };
+
+export const publicRoutes = (app) => {
+  app.get("/torrent/download/:infoHash/:uid", downloadTorrent);
+};

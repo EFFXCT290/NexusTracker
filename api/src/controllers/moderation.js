@@ -115,6 +115,7 @@ export const getReports = async (req, res, next) => {
             {
               $project: {
                 name: 1,
+                infoHash: 1,
               },
             },
           ],

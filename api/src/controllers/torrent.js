@@ -240,8 +240,22 @@ export const editTorrent = async (req, res, next) => {
 
 export const downloadTorrent = async (req, res, next) => {
   try {
-    const { infoHash } = req.params;
-    const userId = req.userId;
+    const { infoHash, uid } = req.params;
+    let userId = req.userId; // From JWT auth middleware
+    
+    // If we have a uid parameter (from RSS) but no userId (no JWT auth)
+    if (uid && !userId) {
+      // Find user by their uid
+      const userByUid = await User.findOne({ uid }).lean();
+      if (userByUid) {
+        userId = userByUid._id;
+      }
+    }
+
+    if (!userId) {
+      res.status(401).send(`Authentication required`);
+      return;
+    }
 
     const user = await User.findOne({ _id: userId }).lean();
     if (!user) {

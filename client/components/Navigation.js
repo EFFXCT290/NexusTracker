@@ -21,6 +21,7 @@ import { TrendingUp } from "@styled-icons/boxicons-regular/TrendingUp";
 import { LogOutCircle } from "@styled-icons/boxicons-regular/LogOutCircle";
 import { LogInCircle } from "@styled-icons/boxicons-regular/LogInCircle";
 import { UserPlus } from "@styled-icons/boxicons-regular/UserPlus";
+import { Lock } from "@styled-icons/boxicons-regular/Lock";
 import Box from "./Box";
 import Text from "./Text";
 import Button from "./Button";
@@ -227,16 +228,10 @@ const Navigation = ({ isMobile, menuIsOpen, setMenuIsOpen }) => {
               </Link>
               {role === "admin" && (
                 <>
-                  <Link href="/reports" passHref>
-                    <NavLink highlights={["/reports"]}>
-                      <Text>{getLocaleString("navReports")}</Text>
-                      <Error size={24} />
-                    </NavLink>
-                  </Link>
-                  <Link href="/stats" passHref>
-                    <NavLink highlights={["/stats"]}>
-                      <Text>{getLocaleString("navStats")}</Text>
-                      <TrendingUp size={24} />
+                  <Link href="/adminPanel" passHref>
+                    <NavLink highlights={["/adminPanel"]}>
+                      <Text>{getLocaleString("navAdminPanel")}</Text>
+                      <Lock size={24} />
                     </NavLink>
                   </Link>
                 </>

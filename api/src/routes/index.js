@@ -10,6 +10,7 @@ import groupRoutes from "./group";
 import wikiRoutes from "./wiki";
 import { auth } from "../middleware/auth";
 import { resendVerification } from "../controllers/resendVerification";
+import reportRouter from "./report";
 
 export {
   accountRoutes,

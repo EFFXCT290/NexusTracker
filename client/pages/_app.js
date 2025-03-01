@@ -402,7 +402,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
                       <Box as="form" onSubmit={handleSearch}>
                         <Input
                           name="query"
-                          placeholder="Search"
+                          placeholder={getLocaleString(locale)("headerSearchPlaceholder")}
                           maxWidth="300px"
                           ref={searchRef}
                         />

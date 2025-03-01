@@ -29,6 +29,12 @@ export const rssFeed = (tracker) => async (req, res, next) => {
   const { query } = req.query;
 
   try {
+    // Only proceed with authentication if both username and password are provided
+    if (!username || !password) {
+      res.status(401).send("Authentication required");
+      return;
+    }
+
     const user = await User.findOne({ username });
 
     if (!user) {

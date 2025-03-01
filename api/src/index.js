@@ -36,6 +36,8 @@ import { downloadTorrent } from "./controllers/torrent";
 import { rssFeed } from "./controllers/rss";
 import createAdminUser from "./setup/createAdminUser";
 import { cleanupOldProgressRecords } from './jobs/cleanupProgress';
+import { publicRoutes } from "./routes/torrent";
+import reportRouter from "./routes/report";
 
 validateConfig(config).then(() => {
   if (process.env.SENTRY_DSN) {
@@ -167,6 +169,7 @@ validateConfig(config).then(() => {
 
   // rss feed (auth handled in cookies)
   app.get("/rss", rssFeed(tracker));
+  publicRoutes(app);
 
   // everything from here on requires user auth
   app.use(auth);
@@ -175,11 +178,12 @@ validateConfig(config).then(() => {
   app.use("/user", userRoutes(tracker));
   app.use("/torrent", torrentRoutes(tracker));
   app.use("/announcements", announcementRoutes());
-  app.use("/reports", reportRoutes());
+  app.use("/reports", reportRouter());
   app.use("/admin", adminRoutes(tracker));
   app.use("/requests", requestRoutes());
   app.use("/group", groupRoutes());
   app.use("/wiki", wikiRoutes());
+  app.use("/users", userRoutes(tracker));
 
   app.use((err, req, res, next) => {
     console.error(`[nx] error in ${req.url}:`, err);
