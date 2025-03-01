@@ -101,7 +101,7 @@
   "logInFailed": "Impossible de se connecter",
   "mdMarkdownPreview": "Aperçu Markdown",
   "navAnnouncements": "Annonces",
-  "navAdminPanel": "Panneau d'administration",
+  "navAdminPanel": "Administration",
   "navBookmarks": "Favoris",
   "navBrowse": "Parcourir",
   "navHome": "Accueil",
@@ -388,13 +388,13 @@
   "adminSearchUsersPlaceholder": "Rechercher des utilisateurs par nom d'utilisateur ou email",
   "adminBanUser": "Bannir",
   "adminDeleteUser": "Supprimer",
-  "adminPaginationFirst": "Premier",
-  "adminPaginationPrevious": "Précédent",
+  "adminPaginationFirst": "Première",
+  "adminPaginationPrevious": "Précédente",
   "adminPaginationInfo": "Page {page} sur {pages} ({total} utilisateurs)",
-  "adminPaginationNext": "Suivant",
-  "adminPaginationLast": "Dernier",
+  "adminPaginationNext": "Suivante",
+  "adminPaginationLast": "Dernière",
   "adminUnbanUser": "Débannir",
   "adminNoUsersFound": "Aucun utilisateur trouvé",
   "headerSearchPlaceholder": "Rechercher",
-  "wikiAddNewPage": "Ajouter une nouvelle page"
+  "wikiAddNewPage": "Ajouter"
 }
