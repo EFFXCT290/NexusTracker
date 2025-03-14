@@ -168,7 +168,20 @@ export const getStats = (tracker) => async (req, res, next) => {
     const registeredUsers = await User.countDocuments();
     const bannedUsers = await User.countDocuments({ banned: true });
     const uploadedTorrents = await Torrent.countDocuments();
-    const completedDownloads = await Progress.countDocuments({ left: 0 });
+    
+    // New implementation: sum up all downloads from the torrent collection
+    const downloadsResult = await Torrent.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalDownloads: { $sum: "$downloads" }
+        }
+      }
+    ]);
+    
+    // Get the total downloads or default to 0 if no results
+    const completedDownloads = downloadsResult.length > 0 ? downloadsResult[0].totalDownloads : 0;
+    
     const totalInvitesSent = await Invite.countDocuments();
     const invitesAccepted = await Invite.countDocuments({ claimed: true });
     const totalRequests = await Request.countDocuments({});

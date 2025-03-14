@@ -143,15 +143,6 @@ const Index = ({
           </Box>
         </Link>
       )}
-      <Box as="form" onSubmit={handleSearch} display="flex" mb={5}>
-        <Input
-          placeholder={getLocaleString("indexSearchTorrents")}
-          name="query"
-          mr={3}
-          required
-        />
-        <Button>{getLocaleString("indexSearch")}</Button>
-      </Box>
       <Text as="h2" mb={4}>
         {getLocaleString("indexLatestTorrents")}
       </Text>

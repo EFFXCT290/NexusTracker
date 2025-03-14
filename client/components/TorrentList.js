@@ -76,7 +76,8 @@ const TorrentList = ({
     if (fetchPath && token) fetchTorrents();
   }, [sort, page]);
 
-  const { getLocaleString } = useContext(LocaleContext);
+  const { locale, getLocaleString } = useContext(LocaleContext);
+  const isFrench = locale === 'fr';
 
   return (
     <>
@@ -90,7 +91,7 @@ const TorrentList = ({
             header: `${getLocaleString("uploadName")}`,
             accessor: "name",
             cell: ({ value, row }) => (
-              <Text title={value}>
+              <Text title={value} fontSize={isFrench ? 0 : 1}>
                 {value}
                 {row.fetchedBy?.bookmarked && (
                   <Box as={Bookmark} size={16} color="primary" ml={2} />
@@ -102,7 +103,7 @@ const TorrentList = ({
                 )}
               </Text>
             ),
-            gridWidth: "minmax(150px, 2fr)",
+            gridWidth: "minmax(150px, 1.6fr)",
           },
           {
             header: `${getLocaleString("uploadCategory")}`,
@@ -113,12 +114,12 @@ const TorrentList = ({
                   (c) => slugify(c, { lower: true }) === value
                 ) || "None";
               return (
-                <Text icon={ListUl} title={category}>
+                <Text icon={ListUl} title={category} fontSize={isFrench ? 0 : 1}>
                   {category}
                 </Text>
               );
             },
-            gridWidth: "minmax(75px, 1fr)",
+            gridWidth: "minmax(75px, 0.9fr)",
           },
           {
             header: `${getLocaleString("torrSeeders")}`,
@@ -127,11 +128,12 @@ const TorrentList = ({
               <Text
                 icon={Upload}
                 iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                fontSize={isFrench ? 0 : 1}
               >
                 {value !== undefined ? value : "?"}
               </Text>
             ),
-            gridWidth: "100px",
+            gridWidth: isFrench ? "120px" : "100px",
             rightAlign: true,
             sortable: !!token,
           },
@@ -142,11 +144,12 @@ const TorrentList = ({
               <Text
                 icon={Download}
                 iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                fontSize={isFrench ? 0 : 1}
               >
                 {value !== undefined ? value : "?"}
               </Text>
             ),
-            gridWidth: "100px",
+            gridWidth: isFrench ? "120px" : "100px",
             rightAlign: true,
             sortable: !!token,
           },
@@ -157,11 +160,12 @@ const TorrentList = ({
               <Text
                 icon={File}
                 iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                fontSize={isFrench ? 0 : 1}
               >
                 {value || 0}
               </Text>
             ),
-            gridWidth: "115px",
+            gridWidth: isFrench ? "135px" : "115px",
             rightAlign: true,
             sortable: !!token,
           },
@@ -172,11 +176,12 @@ const TorrentList = ({
               <Text
                 icon={Chat}
                 iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                fontSize={isFrench ? 0 : 1}
               >
                 {value || 0}
               </Text>
             ),
-            gridWidth: "110px",
+            gridWidth: isFrench ? "130px" : "110px",
             rightAlign: true,
             sortable: !!token,
           },
@@ -184,17 +189,23 @@ const TorrentList = ({
             header: `${getLocaleString("torrUploaded")}`,
             accessor: "created",
             cell: ({ value }) => (
-              <Text>
+              <Text fontSize={isFrench ? 0 : 1}>
                 {moment(value).format(
                   `${getLocaleString("userUserSinceTime")}`
                 )}
               </Text>
             ),
-            gridWidth: "140px",
+            gridWidth: isFrench ? "160px" : "140px",
             rightAlign: true,
             sortable: !!token,
           },
         ]}
+        _css={{
+          "th": {
+            fontSize: isFrench ? "12px" : "14px",
+            whiteSpace: "nowrap",
+          }
+        }}
       />
       {typeof total === "number" && (
         <Box display="flex" alignItems="center" mt={4}>

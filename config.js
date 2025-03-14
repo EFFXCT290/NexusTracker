@@ -4,7 +4,7 @@
 module.exports = {
   envs: {
     // The name of your tracker site. Maximum 20 characters.
-    SQ_SITE_NAME: "NexusTracker demo",
+    SQ_SITE_NAME: "NexusTracker",
 
     // A short description of your tracker site. Maximum 80 characters.
     SQ_SITE_DESCRIPTION: "A short description for your tracker site",
@@ -14,7 +14,7 @@ module.exports = {
     // If only "primary" is specified, the default light and dark themes will be used but with your main brand colour.
     // If the other values are specified, the fully custom theme will be used and not the default light/dark.
     SQ_CUSTOM_THEME: {
-      primary: "#f45d48",
+      primary: "#0ea3e8",
       background: "#1f2023", // Page background colour
       sidebar: "#27282b",    // A secondary background colour, used for sidebar, infoboxes etc.
       border: "#303236",     // Border colour
@@ -80,16 +80,16 @@ module.exports = {
     // This configuration will work regardless of HTTP or HTTPS Protocol
     // For local development, this should be http://127.0.0.1 or `http://ipaddress` if running in VPS
     // For HTTPS/domain-name make sure to change the SQ_BASE_URL and SQ_API_URL to https://domain-name and https://domain-name/api
-    SQ_BASE_URL: "http://ipaddress", 
+    SQ_BASE_URL: "http://127.0.0.1", 
 
     // The URL of your API. Under the recommended setup, it should be `${SQ_BASE_URL}/api`.
     // This configuration will worl regardless of HTTP or HTTPS Protocol
     // For local development, this should be `http://127.0.0.1:3001` or `http://ipaddress/api` if running in VPS
-    SQ_API_URL: "http://ipaddress/api",
+    SQ_API_URL: "http://127.0.0.1:3001",
 
     // The URL of your MongoDB server.
     // You will need a separate container for the MongoDB (This is provided in the Readme)
-    SQ_MONGO_URL: "mongodb://username:password@ipaddress:27017/nexustracker",
+    SQ_MONGO_URL: "mongodb://TUG:TUG%40%40@129.213.83.107:27017/sqtracker_windows",
 
     // Disables sending of any emails and removes the need for an SMTP server.
     // Fine for testing, not recommended in production as users will not be able to reset their passwords.
