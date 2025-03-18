@@ -11,6 +11,7 @@ import styled from "styled-components";
 import css from "@styled-system/css";
 import { useRouter } from "next/router";
 import { NotificationContext } from "../components/Notifications";
+import Link from "next/link";
 
 // Styled components for the admin panel
 const StyledTable = styled.table(() =>
@@ -381,7 +382,11 @@ const AdminPanel = ({ token, userRole }) => {
                   {users.length > 0 ? (
                     users.map(user => (
                       <StyledTr key={user._id}>
-                        <StyledTd>{user.username}</StyledTd>
+                        <StyledTd>
+                          <Link href={`/user/${user.username}`} passHref>
+                            <Text as="a">{user.username}</Text>
+                          </Link>
+                        </StyledTd>
                         <StyledTd>{user.role}</StyledTd>
                         <StyledTd>{new Date(user.created).toLocaleString()}</StyledTd>
                         <StyledTd>

@@ -52,12 +52,14 @@ const Index = ({
   latestTorrents,
   latestAnnouncement,
   emailVerified,
+  userStats,
 }) => {
   const {
     publicRuntimeConfig: {
       SQ_SITE_NAME,
       SQ_ALLOW_REGISTER,
       SQ_TORRENT_CATEGORIES,
+      SQ_API_URL,
     },
   } = getConfig();
 
@@ -148,7 +150,12 @@ const Index = ({
       </Text>
       <TorrentList
         torrents={latestTorrents}
+        setTorrents={() => {}}
         categories={SQ_TORRENT_CATEGORIES}
+        total={latestTorrents.length}
+        fetchPath={`${SQ_API_URL}/torrent/list`}
+        token={token}
+        userStats={userStats}
       />
     </>
   );
@@ -189,9 +196,14 @@ export const getServerSideProps = withAuthServerSideProps(
         headers: fetchHeaders,
       });
       const emailVerified = await verifiedRes.json();
+      
+      const userStatsRes = await fetch(`${SQ_API_URL}/account/get-stats`, {
+        headers: fetchHeaders,
+      });
+      const userStats = await userStatsRes.json();
 
       return {
-        props: { latestTorrents, latestAnnouncement, emailVerified, token },
+        props: { latestTorrents, latestAnnouncement, emailVerified, token, userStats },
       };
     } catch (e) {
       console.error(e);

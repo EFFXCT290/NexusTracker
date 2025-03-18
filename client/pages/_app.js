@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import App from "next/app";
 import Head from "next/head";
 import Router, { useRouter } from "next/router";
@@ -178,15 +178,18 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
   const dropdownRef = useRef(null);
 
   const router = useRouter();
-  const isAuthPage = router.pathname === "/login" || 
-                     router.pathname === "/register" || 
-                     router.pathname.startsWith("/reset-password");
-
   const searchRef = useRef();
 
   const [cookies, setCookie] = useCookies();
-
   const { token } = cookies;
+
+  // Using useMemo to compute hideNavigation whenever dependencies change
+  const hideNavigation = useMemo(() => {
+    return router.pathname === "/login" || 
+           router.pathname === "/register" || 
+           router.pathname.startsWith("/reset-password") ||
+           (router.pathname === "/" && !token);
+  }, [router.pathname, token]);
 
   const {
     publicRuntimeConfig: {
@@ -239,13 +242,12 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
     Router.events.on("routeChangeComplete", () => setLoading(false));
     Router.events.on("routeChangeError", () => setLoading(false));
 
-    // Add this effect to add/remove the login-page class to the body
-    if (isAuthPage) {
+    if (hideNavigation) {
       document.body.classList.add('login-page');
     } else {
       document.body.classList.remove('login-page');
     }
-  }, [isAuthPage]);
+  }, [hideNavigation]);
 
   useEffect(() => {
     if (!isServer && token) {
@@ -339,7 +341,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
             }}
           >
             <NotificationsProvider>
-              {!isAuthPage && (
+              {!hideNavigation && (
                 <Box 
                   display={["none", "none", "none", "block"]}
                 >
@@ -351,7 +353,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
                 </Box>
               )}
               
-              {!isAuthPage && (
+              {!hideNavigation && (
                 <Box
                   width="100%"
                   height="60px"
@@ -942,18 +944,18 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
               
               <Box 
                 as="main" 
-                width={isAuthPage ? "100%" : undefined}
-                height={isAuthPage ? "100%" : undefined}
-                mt={isAuthPage ? 0 : "60px"}
-                ml={isAuthPage ? 0 : ["0", "0", "0", "60px"]}
-                maxWidth={isAuthPage ? "none" : ["100%", "100%", "100%", "100%"]}
+                width={hideNavigation ? "100%" : undefined}
+                height={hideNavigation ? "100%" : undefined}
+                mt={hideNavigation ? 0 : "60px"}
+                ml={hideNavigation ? 0 : ["0", "0", "0", "60px"]}
+                maxWidth={hideNavigation ? "none" : ["100%", "100%", "100%", "100%"]}
                 px={[3, 3, 4, 4]}
                 py={[3, 4, 4, 4]}
-                mx={isAuthPage ? 0 : "auto"}
+                mx={hideNavigation ? 0 : "auto"}
                 position="relative"
                 _css={{
                   "& > *": {
-                    maxWidth: isAuthPage ? "none" : ['95%', '90%', '90%', '95%'],
+                    maxWidth: hideNavigation ? "none" : ['95%', '90%', '90%', '95%'],
                     marginLeft: "auto",
                     marginRight: "auto"
                   }

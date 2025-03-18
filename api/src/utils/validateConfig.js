@@ -55,6 +55,12 @@ const configSchema = yup
           .oneOf(["en", "es", "it", "ru", "de", "zh", "eo", "fr"]),
         SQ_BASE_URL: yup.string().matches(httpRegex).required(),
         SQ_API_URL: yup.string().matches(httpRegex).required(),
+      })
+      .strict()
+      .noUnknown()
+      .required(),
+    secrets: yup
+      .object({
         SQ_MONGO_URL: yup.string().matches(mongoRegex).required(),
         SQ_DISABLE_EMAIL: yup.boolean(),
         SQ_MAIL_FROM_ADDRESS: yup
@@ -81,12 +87,6 @@ const configSchema = yup
           is: (val) => val !== true,
           then: (schema) => schema.required(),
         }),
-      })
-      .strict()
-      .noUnknown()
-      .required(),
-    secrets: yup
-      .object({
         SQ_JWT_SECRET: yup.string().required(),
         SQ_SERVER_SECRET: yup.string().required(),
         SQ_ADMIN_EMAIL: yup.string().email().required(),

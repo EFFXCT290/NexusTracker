@@ -86,7 +86,8 @@ module.exports = {
     // This configuration will worl regardless of HTTP or HTTPS Protocol
     // For local development, this should be `http://127.0.0.1:3001` or `http://ipaddress/api` if running in VPS
     SQ_API_URL: "http://ipaddress/api",
-
+  },
+  secrets: {
     // The URL of your MongoDB server.
     // You will need a separate container for the MongoDB (This is provided in the Readme)
     SQ_MONGO_URL: "mongodb://username:password@ipaddress:27017/nexustracker",
@@ -112,8 +113,7 @@ module.exports = {
     // In most cases set this value to true if you are connecting to port 465. For port 587 or 25 keep it false.
     // Not required if SQ_DISABLE_EMAIL=true.
     SQ_SMTP_SECURE: false,
-  },
-  secrets: {
+    
     // A secret value to sign tokens with. Should be long and random.
     SQ_JWT_SECRET: "long_char_40_code",
 

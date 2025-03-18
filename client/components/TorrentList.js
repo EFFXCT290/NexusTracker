@@ -19,6 +19,8 @@ import Text from "./Text";
 import Box from "./Box";
 import Button from "./Button";
 import LocaleContext from "../utils/LocaleContext";
+import { NotificationContext } from "../components/Notifications";
+import Link from "next/link";
 
 const pageSize = 25;
 
@@ -29,9 +31,10 @@ const TorrentList = ({
   total,
   fetchPath,
   token,
+  userStats,
 }) => {
   const {
-    publicRuntimeConfig: { SQ_SITE_WIDE_FREELEECH },
+    publicRuntimeConfig: { SQ_SITE_WIDE_FREELEECH, SQ_API_URL, SQ_SITE_NAME, SQ_MINIMUM_RATIO, SQ_MAXIMUM_HIT_N_RUNS },
   } = getConfig();
 
   const router = useRouter();
@@ -77,7 +80,67 @@ const TorrentList = ({
   }, [sort, page]);
 
   const { locale, getLocaleString } = useContext(LocaleContext);
+  const { addNotification } = useContext(NotificationContext);
   const isFrench = locale === 'fr';
+
+  // Function to handle torrent download
+  const handleDownloadTorrent = async (torrent) => {
+    try {
+      const response = await fetch(
+        `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      // Create a download link with proper filename
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${torrent.name} - ${SQ_SITE_NAME}.torrent`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      addNotification('error', 'Failed to download torrent file');
+    }
+  };
+
+  // Improved isDownloadDisabled function with debugging
+  const isDownloadDisabled = () => {
+    // For debugging, you can add these console logs temporarily
+    console.log("User stats:", userStats);
+    console.log("SQ_MINIMUM_RATIO:", SQ_MINIMUM_RATIO);
+    console.log("SQ_MAXIMUM_HIT_N_RUNS:", SQ_MAXIMUM_HIT_N_RUNS);
+    
+    if (!userStats) {
+      console.log("No user stats available");
+      return false; // Allow download if no stats (safer default)
+    }
+    
+    const ratioTooLow = Number(SQ_MINIMUM_RATIO) !== -1 && 
+                       userStats.ratio !== -1 && 
+                       userStats.ratio < Number(SQ_MINIMUM_RATIO);
+                       
+    const tooManyHnR = Number(SQ_MAXIMUM_HIT_N_RUNS) !== -1 && 
+                       userStats.hitnruns > Number(SQ_MAXIMUM_HIT_N_RUNS);
+    
+    console.log("Ratio too low:", ratioTooLow);
+    console.log("Too many HnR:", tooManyHnR);
+    
+    return ratioTooLow || tooManyHnR;
+  };
 
   return (
     <>
@@ -103,7 +166,7 @@ const TorrentList = ({
                 )}
               </Text>
             ),
-            gridWidth: "minmax(150px, 1.6fr)",
+            gridWidth: "minmax(120px, 1fr)",
           },
           {
             header: `${getLocaleString("uploadCategory")}`,
@@ -199,11 +262,41 @@ const TorrentList = ({
             rightAlign: true,
             sortable: !!token,
           },
+          {
+            header: ``,
+            accessor: "infoHash",
+            cell: ({ row }) => (
+              <Box display="flex" justifyContent="center">
+                <Button
+                  onClick={() => handleDownloadTorrent(row)}
+                  title={getLocaleString("torrDownload")}
+                  variant="secondary"
+                  px={2}
+                  py={1}
+                  disabled={!token}
+                >
+                  <Download size={18} />
+                </Button>
+              </Box>
+            ),
+            gridWidth: "60px",
+          },
         ]}
         _css={{
           "th": {
             fontSize: isFrench ? "12px" : "14px",
             whiteSpace: "nowrap",
+          },
+          "overflow-x": "auto",
+          "max-width": "100%",
+          "table": {
+            "table-layout": "fixed",
+            "width": "100%"
+          },
+          "td": {
+            "overflow": "hidden",
+            "text-overflow": "ellipsis",
+            "white-space": "nowrap"
           }
         }}
       />
