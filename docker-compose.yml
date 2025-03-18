@@ -37,6 +37,8 @@ services:
     environment:
       - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip} # change http to https if you want https
       - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api} # change http to https if you want https
+    logging: # Disable Block to enable Logs
+      driver: "none"
         
   client:
     image: effxct290/nexustracker-client:latest-amd64
@@ -60,6 +62,8 @@ services:
     environment:
       - SQ_BASE_URL=${SQ_BASE_URL:-http://your-server-ip} # change http to https if you want https
       - SQ_API_URL=${SQ_API_URL:-http://your-server-ip/api} # change http to https if you want https
+    logging: # Disable Block to enable Logs
+      driver: "none"
 
 networks:
   tracker-network:
