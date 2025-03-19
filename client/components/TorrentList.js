@@ -84,7 +84,10 @@ const TorrentList = ({
   const isFrench = locale === 'fr';
 
   // Function to handle torrent download
-  const handleDownloadTorrent = async (torrent) => {
+  const handleDownloadTorrent = async (event, torrent) => {
+    event.preventDefault(); // Prevent default link behavior
+    event.stopPropagation(); // Stop event from bubbling up
+
     try {
       const response = await fetch(
         `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
@@ -144,162 +147,171 @@ const TorrentList = ({
 
   return (
     <>
-      <List
-        data={torrents.map((torrent) => ({
-          ...torrent,
-          href: `/torrent/${torrent.infoHash}`,
-        }))}
-        columns={[
-          {
-            header: `${getLocaleString("uploadName")}`,
-            accessor: "name",
-            cell: ({ value, row }) => (
-              <Text title={value} fontSize={isFrench ? 0 : 1}>
-                {value}
-                {row.fetchedBy?.bookmarked && (
-                  <Box as={Bookmark} size={16} color="primary" ml={2} />
-                )}
-                {(row.freeleech || SQ_SITE_WIDE_FREELEECH === true) && (
-                  <Text as="span" fontSize={0} color="primary" ml={3}>
-                    {getLocaleString("torrFL")}
-                  </Text>
-                )}
-              </Text>
-            ),
-            gridWidth: "minmax(120px, 1fr)",
-          },
-          {
-            header: `${getLocaleString("uploadCategory")}`,
-            accessor: "type",
-            cell: ({ value }) => {
-              const category =
-                Object.keys(categories).find(
-                  (c) => slugify(c, { lower: true }) === value
-                ) || "None";
-              return (
-                <Text icon={ListUl} title={category} fontSize={isFrench ? 0 : 1}>
-                  {category}
-                </Text>
-              );
-            },
-            gridWidth: "minmax(75px, 0.9fr)",
-          },
-          {
-            header: `${getLocaleString("torrSeeders")}`,
-            accessor: "seeders",
-            cell: ({ value }) => (
-              <Text
-                icon={Upload}
-                iconTextWrapperProps={{ justifyContent: "flex-end" }}
-                fontSize={isFrench ? 0 : 1}
-              >
-                {value !== undefined ? value : "?"}
-              </Text>
-            ),
-            gridWidth: isFrench ? "120px" : "100px",
-            rightAlign: true,
-            sortable: !!token,
-          },
-          {
-            header: `${getLocaleString("torrLeechers")}`,
-            accessor: "leechers",
-            cell: ({ value }) => (
-              <Text
-                icon={Download}
-                iconTextWrapperProps={{ justifyContent: "flex-end" }}
-                fontSize={isFrench ? 0 : 1}
-              >
-                {value !== undefined ? value : "?"}
-              </Text>
-            ),
-            gridWidth: isFrench ? "120px" : "100px",
-            rightAlign: true,
-            sortable: !!token,
-          },
-          {
-            header: `${getLocaleString("torrDownloads")}`,
-            accessor: "downloads",
-            cell: ({ value }) => (
-              <Text
-                icon={File}
-                iconTextWrapperProps={{ justifyContent: "flex-end" }}
-                fontSize={isFrench ? 0 : 1}
-              >
-                {value || 0}
-              </Text>
-            ),
-            gridWidth: isFrench ? "135px" : "115px",
-            rightAlign: true,
-            sortable: !!token,
-          },
-          {
-            header: `${getLocaleString("userComments")}`,
-            accessor: "comments.count",
-            cell: ({ value }) => (
-              <Text
-                icon={Chat}
-                iconTextWrapperProps={{ justifyContent: "flex-end" }}
-                fontSize={isFrench ? 0 : 1}
-              >
-                {value || 0}
-              </Text>
-            ),
-            gridWidth: isFrench ? "130px" : "110px",
-            rightAlign: true,
-            sortable: !!token,
-          },
-          {
-            header: `${getLocaleString("torrUploaded")}`,
-            accessor: "created",
-            cell: ({ value }) => (
-              <Text fontSize={isFrench ? 0 : 1}>
-                {moment(value).format(
-                  `${getLocaleString("userUserSinceTime")}`
-                )}
-              </Text>
-            ),
-            gridWidth: isFrench ? "160px" : "140px",
-            rightAlign: true,
-            sortable: !!token,
-          },
-          {
-            header: ``,
-            accessor: "infoHash",
-            cell: ({ row }) => (
-              <Box display="flex" justifyContent="center">
-                <Button
-                  onClick={() => handleDownloadTorrent(row)}
-                  title={getLocaleString("torrDownload")}
-                  variant="secondary"
-                  px={2}
-                  py={1}
-                  disabled={!token}
-                >
-                  <Download size={18} />
-                </Button>
-              </Box>
-            ),
-            gridWidth: "60px",
-          },
-        ]}
-        _css={{
-          "th": {
-            fontSize: isFrench ? "12px" : "14px",
-            whiteSpace: "nowrap",
-          },
-          "overflow-x": "auto",
-          "max-width": "100%",
-          "table": {
-            "table-layout": "fixed",
-            "width": "100%"
-          },
-          "td": {
-            "overflow": "hidden",
-            "text-overflow": "ellipsis",
-            "white-space": "nowrap"
+      <Box
+        overflowX="auto"
+        width="100%"
+        sx={{
+          '& table': {
+            width: 'max-content',
+            minWidth: '100%'
           }
         }}
-      />
+      >
+        <List
+          data={torrents.map((torrent) => ({
+            ...torrent,
+            href: `/torrent/${torrent.infoHash}`,
+          }))}
+          columns={[
+            {
+              header: `${getLocaleString("uploadName")}`,
+              accessor: "name",
+              cell: ({ value, row }) => (
+                <Text title={value} fontSize={isFrench ? 0 : 1}>
+                  {value}
+                  {row.fetchedBy?.bookmarked && (
+                    <Box as={Bookmark} size={16} color="primary" ml={2} />
+                  )}
+                  {(row.freeleech || SQ_SITE_WIDE_FREELEECH === true) && (
+                    <Text as="span" fontSize={0} color="primary" ml={3}>
+                      {getLocaleString("torrFL")}
+                    </Text>
+                  )}
+                </Text>
+              ),
+              gridWidth: "minmax(200px, 2fr)",
+            },
+            {
+              header: `${getLocaleString("uploadCategory")}`,
+              accessor: "type",
+              cell: ({ value }) => {
+                const category =
+                  Object.keys(categories).find(
+                    (c) => slugify(c, { lower: true }) === value
+                  ) || "None";
+                return (
+                  <Text icon={ListUl} title={category} fontSize={isFrench ? 0 : 1}>
+                    {category}
+                  </Text>
+                );
+              },
+              gridWidth: "minmax(70px, 0.6fr)",
+            },
+            {
+              header: `${getLocaleString("torrSeeders")}`,
+              accessor: "seeders",
+              cell: ({ value }) => (
+                <Text
+                  icon={Upload}
+                  iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                  fontSize={isFrench ? 0 : 1}
+                >
+                  {value !== undefined ? value : "?"}
+                </Text>
+              ),
+              gridWidth: isFrench ? "120px" : "100px",
+              rightAlign: true,
+              sortable: !!token,
+            },
+            {
+              header: `${getLocaleString("torrLeechers")}`,
+              accessor: "leechers",
+              cell: ({ value }) => (
+                <Text
+                  icon={Download}
+                  iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                  fontSize={isFrench ? 0 : 1}
+                >
+                  {value !== undefined ? value : "?"}
+                </Text>
+              ),
+              gridWidth: isFrench ? "120px" : "100px",
+              rightAlign: true,
+              sortable: !!token,
+            },
+            {
+              header: `${getLocaleString("torrDownloads")}`,
+              accessor: "downloads",
+              cell: ({ value }) => (
+                <Text
+                  icon={File}
+                  iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                  fontSize={isFrench ? 0 : 1}
+                >
+                  {value || 0}
+                </Text>
+              ),
+              gridWidth: isFrench ? "135px" : "115px",
+              rightAlign: true,
+              sortable: !!token,
+            },
+            {
+              header: `${getLocaleString("userComments")}`,
+              accessor: "comments.count",
+              cell: ({ value }) => (
+                <Text
+                  icon={Chat}
+                  iconTextWrapperProps={{ justifyContent: "flex-end" }}
+                  fontSize={isFrench ? 0 : 1}
+                >
+                  {value || 0}
+                </Text>
+              ),
+              gridWidth: isFrench ? "130px" : "110px",
+              rightAlign: true,
+              sortable: !!token,
+            },
+            {
+              header: `${getLocaleString("torrUploaded")}`,
+              accessor: "created",
+              cell: ({ value }) => (
+                <Text fontSize={isFrench ? 0 : 1}>
+                  {moment(value).format(
+                    `${getLocaleString("userUserSinceTime")}`
+                  )}
+                </Text>
+              ),
+              gridWidth: isFrench ? "160px" : "140px",
+              rightAlign: true,
+              sortable: !!token,
+            },
+            {
+              header: ``,
+              accessor: "infoHash",
+              cell: ({ row }) => (
+                <Box display="flex" justifyContent="flex-end" alignItems="center">
+                  <Button
+                    onClick={(event) => handleDownloadTorrent(event, row)}
+                    title={getLocaleString("torrDownload")}
+                    variant="secondary"
+                    px={2}
+                    py={1}
+                    disabled={!token}
+                  >
+                    <Download size={18} />
+                  </Button>
+                </Box>
+              ),
+              gridWidth: "60px",
+            },
+          ]}
+          _css={{
+            "th": {
+              fontSize: isFrench ? "12px" : "14px",
+              whiteSpace: "nowrap",
+            },
+            "table": {
+              "table-layout": "fixed",
+              "width": "100%"
+            },
+            "td": {
+              "overflow": "hidden",
+              "text-overflow": "ellipsis",
+              "white-space": "nowrap"
+            }
+          }}
+        />
+      </Box>
       {typeof total === "number" && (
         <Box display="flex" alignItems="center" mt={4}>
           <Button

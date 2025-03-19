@@ -183,13 +183,51 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
   const [cookies, setCookie] = useCookies();
   const { token } = cookies;
 
-  // Using useMemo to compute hideNavigation whenever dependencies change
-  const hideNavigation = useMemo(() => {
-    return router.pathname === "/login" || 
-           router.pathname === "/register" || 
-           router.pathname.startsWith("/reset-password") ||
-           (router.pathname === "/" && !token);
-  }, [router.pathname, token]);
+  const [hideNavigation, setHideNavigation] = useState(false);
+  const [layoutIsReady, setLayoutIsReady] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  const isAuthPage = router.pathname === "/login" || 
+                     router.pathname === "/register" || 
+                     router.pathname.startsWith("/reset-password") ||
+                     (router.pathname === "/" && !token);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
+    if (isAuthPage) {
+      document.body.classList.add('login-page');
+    } else {
+      document.body.classList.remove('login-page');
+      
+      try {
+        const savedNavState = localStorage.getItem('nexusTrackerNavHidden');
+        if (savedNavState !== null) {
+          setHideNavigation(savedNavState === 'true');
+        }
+      } catch (err) {
+        console.error("Error accessing localStorage:", err);
+      }
+    }
+    
+    setTimeout(() => {
+      setLayoutIsReady(true);
+    }, 0);
+  }, [isClient, isAuthPage]);
+
+  const toggleNavigation = () => {
+    const newState = !hideNavigation;
+    setHideNavigation(newState);
+    try {
+      localStorage.setItem('nexusTrackerNavHidden', String(newState));
+    } catch (err) {
+      console.error("Error writing to localStorage:", err);
+    }
+  };
 
   const {
     publicRuntimeConfig: {
@@ -241,13 +279,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
     Router.events.on("routeChangeStart", () => setLoading(true));
     Router.events.on("routeChangeComplete", () => setLoading(false));
     Router.events.on("routeChangeError", () => setLoading(false));
-
-    if (hideNavigation) {
-      document.body.classList.add('login-page');
-    } else {
-      document.body.classList.remove('login-page');
-    }
-  }, [hideNavigation]);
+  }, []);
 
   useEffect(() => {
     if (!isServer && token) {
@@ -341,7 +373,7 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
             }}
           >
             <NotificationsProvider>
-              {!hideNavigation && (
+              {!isAuthPage && !hideNavigation && (
                 <Box 
                   display={["none", "none", "none", "block"]}
                 >
@@ -349,11 +381,14 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
                     isMobile={isMobile}
                     menuIsOpen={menuIsOpen}
                     setMenuIsOpen={setMenuIsOpen}
+                    isVisible={layoutIsReady}
+                    siteTitle={process.env.NEXT_PUBLIC_SQ_SITE_NAME || "NexusTracker"}
+                    toggleNavigation={toggleNavigation}
                   />
                 </Box>
               )}
               
-              {!hideNavigation && (
+              {!isAuthPage && !hideNavigation && (
                 <Box
                   width="100%"
                   height="60px"
@@ -944,18 +979,21 @@ const NexusTracker = ({ Component, pageProps, initialTheme }) => {
               
               <Box 
                 as="main" 
-                width={hideNavigation ? "100%" : undefined}
-                height={hideNavigation ? "100%" : undefined}
-                mt={hideNavigation ? 0 : "60px"}
-                ml={hideNavigation ? 0 : ["0", "0", "0", "60px"]}
-                maxWidth={hideNavigation ? "none" : ["100%", "100%", "100%", "100%"]}
+                width={(isAuthPage || hideNavigation) ? "100%" : undefined}
+                height={(isAuthPage || hideNavigation) ? "100%" : undefined}
+                mt={(isAuthPage || hideNavigation) ? 0 : "60px"}
+                ml={(isAuthPage || hideNavigation) ? 0 : ["0", "0", "0", "60px"]}
+                maxWidth={(isAuthPage || hideNavigation) ? "none" : ["100%", "100%", "100%", "100%"]}
                 px={[3, 3, 4, 4]}
                 py={[3, 4, 4, 4]}
-                mx={hideNavigation ? 0 : "auto"}
+                mx={(isAuthPage || hideNavigation) ? 0 : "auto"}
                 position="relative"
+                visibility={(isClient && layoutIsReady) ? "visible" : "hidden"}
+                opacity={(isClient && layoutIsReady) ? 1 : 0}
                 _css={{
+                  transition: "opacity 0.3s ease, visibility 0.3s ease",
                   "& > *": {
-                    maxWidth: hideNavigation ? "none" : ['95%', '90%', '90%', '95%'],
+                    maxWidth: (isAuthPage || hideNavigation) ? "none" : ['95%', '90%', '90%', '95%'],
                     marginLeft: "auto",
                     marginRight: "auto"
                   }
