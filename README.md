@@ -75,7 +75,7 @@ nano /etc/mongod.conf.orig
 
 # Add under security section:
 ```bash
-security:
+#security:
   authorization: enabled
 ```
 
