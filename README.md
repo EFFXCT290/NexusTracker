@@ -16,7 +16,6 @@ A modern, feature-rich BitTorrent tracker platform designed for both private and
 
 Create a \`docker-compose.yml\` for MongoDB:
 ```bash
-yaml
 services:
   mongodb:
     image: mongo:latest
