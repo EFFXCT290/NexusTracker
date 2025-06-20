@@ -153,7 +153,7 @@ const Index = ({
         setTorrents={() => {}}
         categories={SQ_TORRENT_CATEGORIES}
         total={latestTorrents.length}
-        fetchPath={`${SQ_API_URL}/torrent/list`}
+        fetchPath={`${SQ_API_URL}/torrent/latest`}
         token={token}
         userStats={userStats}
       />

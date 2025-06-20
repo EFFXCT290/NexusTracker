@@ -726,9 +726,12 @@ export const listAll = async (req, res, next) => {
 
 export const searchTorrents = (tracker) => async (req, res, next) => {
   const { query, category, source, tag, page, sort } = req.query;
+  const pageNumber = page ? parseInt(page) : 1;
+  const limit = 25;
   try {
     const torrents = await getTorrentsPage({
-      skip: page ? parseInt(page) : 0,
+      skip: (pageNumber - 1) * limit,
+      limit,
       query: query ? decodeURIComponent(query) : undefined,
       category,
       source,

@@ -44,7 +44,7 @@ const TorrentList = ({
 
   const page = pageParam ? parseInt(pageParam) - 1 : 0;
 
-  const maxPage = total > pageSize ? Math.floor(total / pageSize) : 0;
+  const maxPage = Math.max(0, Math.ceil(total / pageSize) - 1);
   const canPrevPage = page > 0;
   const canNextPage = page < maxPage;
 
