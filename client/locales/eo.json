@@ -338,5 +338,11 @@
   "adminUnbanUser": "Malforbari",
   "adminNoUsersFound": "Neniuj uzantoj trovitaj",
   "headerSearchPlaceholder": "Serĉi",
-  "wikiAddNewPage": "Aldoni novan paĝon"
+  "wikiAddNewPage": "Aldoni novan paĝon",
+  "userLastSeen": "Laste vidita",
+  "userTimezone": "Horzono",
+  "adminLastSeenColumn": "Laste vidita",
+  "timezoneUpdatedSuccess": "Timezono ĝisdatigis sukcese.",
+  "timezoneUpdateError": "Ne povis ĝisdatigi horzonon.",
+  "timezoneLabel": "Horzono"
 }

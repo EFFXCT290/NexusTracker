@@ -337,5 +337,11 @@
   "adminUnbanUser": "Разблокировать",
   "adminNoUsersFound": "Пользователи не найдены",
   "headerSearchPlaceholder": "Поиск",
-  "wikiAddNewPage": "Добавить новую страницу"
+  "wikiAddNewPage": "Добавить новую страницу",
+  "userLastSeen": "Последний раз видели",
+  "userTimezone": "Часовой пояс",
+  "adminLastSeenColumn": "Последний раз видели",
+  "timezoneUpdatedSuccess": "Timezone успешно обновился.",
+  "timezoneUpdateError": "Не мог обновить часовой пояс.",
+  "timezoneLabel": "Часовой пояс"
 }

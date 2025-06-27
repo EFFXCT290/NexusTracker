@@ -341,5 +341,11 @@
   "adminUnbanUser": "Sbannare",
   "adminNoUsersFound": "Nessun utente trovato",
   "headerSearchPlaceholder": "Cerca",
-  "wikiAddNewPage": "Aggiungi nuova pagina"
+  "wikiAddNewPage": "Aggiungi nuova pagina",
+  "userLastSeen": "Ultimo visto",
+  "userTimezone": "Fuso orario",
+  "adminLastSeenColumn": "Ultimo visto",
+  "timezoneUpdatedSuccess": "Timezone aggiornato con successo.",
+  "timezoneUpdateError": "Impossibile aggiornare il fuso orario.",
+  "timezoneLabel": "Fuso orario"
 }

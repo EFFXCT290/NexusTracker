@@ -55,6 +55,10 @@ const configSchema = yup
           .oneOf(["en", "es", "it", "ru", "de", "zh", "eo", "fr"]),
         SQ_BASE_URL: yup.string().matches(httpRegex).required(),
         SQ_API_URL: yup.string().matches(httpRegex).required(),
+        // ADD Last Seen Feature
+        SQ_ENABLE_LAST_SEEN: yup.boolean().required(),
+        SQ_DEFAULT_TIMEZONE: yup.string().required(),
+        // End of Last Seen Feature
       })
       .strict()
       .noUnknown()

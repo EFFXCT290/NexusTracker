@@ -12,6 +12,10 @@ import css from "@styled-system/css";
 import { useRouter } from "next/router";
 import { NotificationContext } from "../components/Notifications";
 import Link from "next/link";
+// ADD LAST SEEN FEATURE
+import moment from "moment";
+import "moment-timezone";
+// End of Last Seen Feature
 
 // Styled components for the admin panel
 const StyledTable = styled.table(() =>
@@ -126,7 +130,24 @@ const AdminPanel = ({ token, userRole }) => {
   const [activeTab, setActiveTab] = useState('users'); // Default tab
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
+  const [viewerTimezone, setViewerTimezone] = useState("UTC");
   const router = useRouter();
+
+  // Fetch current admin's timezone on mount
+  useEffect(() => {
+    const fetchViewer = async () => {
+      try {
+        const res = await fetch(`${getConfig().publicRuntimeConfig.SQ_API_URL}/user/${router.query?.admin || 'admin'}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const viewer = await res.json();
+          setViewerTimezone(viewer.timezone || "UTC");
+        }
+      } catch {}
+    };
+    fetchViewer();
+  }, [token, router.query]);
 
   // Fetch users with pagination and search
   const fetchUsers = async (page = 0, searchTerm = search) => {
@@ -375,6 +396,7 @@ const AdminPanel = ({ token, userRole }) => {
                     <StyledTh>{getLocaleString("username")}</StyledTh>
                     <StyledTh>{getLocaleString("role")}</StyledTh>
                     <StyledTh>{getLocaleString("registrationDate")}</StyledTh>
+                    <StyledTh>{getLocaleString("adminLastSeenColumn")}</StyledTh>
                     <StyledTh>{getLocaleString("actions")}</StyledTh>
                   </tr>
                 </thead>
@@ -389,6 +411,9 @@ const AdminPanel = ({ token, userRole }) => {
                         </StyledTd>
                         <StyledTd>{user.role}</StyledTd>
                         <StyledTd>{new Date(user.created).toLocaleString()}</StyledTd>
+                        <StyledTd>
+                          {user.lastSeen ? moment(user.lastSeen).tz(viewerTimezone).format("YYYY-MM-DD HH:mm z") : "-"}
+                        </StyledTd>
                         <StyledTd>
                           <Button 
                             onClick={() => handleBanUser(user)} 

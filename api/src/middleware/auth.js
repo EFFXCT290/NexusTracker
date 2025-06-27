@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../schema/user";
+// ADD LAST SEEN FEATURE
+import config from "../../../config";
+// End of Last Seen Feature
 
 /**
  * Middleware to authenticate users based on JWT.
@@ -19,6 +22,13 @@ const auth = async (req, res, next) => {
           }
           req.userId = user._id;
           req.userRole = user.role;
+          // ADD LAST SEEN FEATURE
+          // Update lastSeen if enabled in config
+          if (config.envs.SQ_ENABLE_LAST_SEEN) {
+            user.lastSeen = new Date();
+            await user.save();
+          }
+          // End of Last Seen Feature
           return next();
         } else {
           return res.sendStatus(404);

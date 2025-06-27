@@ -340,5 +340,11 @@
   "adminUnbanUser": "解封",
   "adminNoUsersFound": "未找到用户",
   "headerSearchPlaceholder": "搜索",
-  "wikiAddNewPage": "添加新页面"
+  "wikiAddNewPage": "添加新页面",
+  "userLastSeen": "最后一个见面",
+  "userTimezone": "时区",
+  "adminLastSeenColumn": "最后一个见面",
+  "timezoneUpdatedSuccess": "TimeZone成功更新了。",
+  "timezoneUpdateError": "无法更新时区。",
+  "timezoneLabel": "时区"
 }

@@ -86,6 +86,14 @@ module.exports = {
     // This configuration will worl regardless of HTTP or HTTPS Protocol
     // For local development, this should be `http://127.0.0.1:3001` or `http://ipaddress/api` if running in VPS
     SQ_API_URL: "http://ipaddress/api",
+
+    // ADD LAST SEEN FEATURE
+    // Enable or disable the "last seen" feature
+    SQ_ENABLE_LAST_SEEN: true,
+
+    // Default timezone for displaying dates/times (e.g., "Europe/Paris", "UTC", "America/New_York")
+    SQ_DEFAULT_TIMEZONE: "UTC",
+    // End of Last Seen Feature
   },
   secrets: {
     // The URL of your MongoDB server.

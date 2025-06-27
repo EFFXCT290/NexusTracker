@@ -342,5 +342,11 @@
   "adminUnbanUser": "Entsperren",
   "adminNoUsersFound": "Keine Benutzer gefunden",
   "headerSearchPlaceholder": "Suchen",
-  "wikiAddNewPage": "Neue Seite hinzufügen"
+  "wikiAddNewPage": "Neue Seite hinzufügen",
+  "userLastSeen": "Zuletzt gesehen",
+  "userTimezone": "Zeitzone",
+  "adminLastSeenColumn": "Zuletzt gesehen",
+  "timezoneUpdatedSuccess": "TimeZone erfolgreich aktualisiert.",
+  "timezoneUpdateError": "Konnte TimeZone nicht aktualisieren.",
+  "timezoneLabel": "Zeitzone"
 }

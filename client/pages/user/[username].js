@@ -3,6 +3,9 @@ import getConfig from "next/config";
 import Link from "next/link";
 import { useCookies } from "react-cookie";
 import moment from "moment";
+// ADD LAST SEEN FEATURE
+import "moment-timezone";
+// End of Last Seen Feature
 import prettyBytes from "pretty-bytes";
 import jwt from "jsonwebtoken";
 import { Sort } from "@styled-icons/boxicons-regular/Sort";
@@ -46,6 +49,9 @@ const User = ({ token, user, userRole }) => {
   const uploadedBytes = prettyBytes(user.uploaded?.bytes || 0).split(" ");
 
   const { getLocaleString } = useContext(LocaleContext);
+
+  // Get viewer's timezone from cookies or fallback to UTC
+  const viewerTimezone = cookies.timezone || "UTC";
 
   const handleBanUser = async () => {
     setLoading(true);
@@ -136,11 +142,26 @@ const User = ({ token, user, userRole }) => {
             {user.username}
           </Button>
         )}
+      {/*ADD LAST SEEN FEATURE*/}
       </Box>
-      <Text color="grey" mb={5}>
-        {getLocaleString("userUserSince")}{" "}
-        {moment(user.created).format(`${getLocaleString("userUserSinceTime")}`)}
+      <Text color="grey" mb={1}>
+        {getLocaleString("userUserSince")} {moment(user.created).format(`${getLocaleString("userUserSinceTime")}`)}
       </Text>
+      {(user.lastSeen || user.timezone) && (
+        <Box mb={4}>
+          {user.lastSeen && (
+            <Text color="grey">
+              {getLocaleString("userLastSeen")}: {moment(user.lastSeen).tz(viewerTimezone).format("YYYY-MM-DD HH:mm z")}
+            </Text>
+          )}
+          {user.timezone && (
+            <Text color="grey">
+              {getLocaleString("userTimezone")}: {user.timezone}
+            </Text>
+          )}
+        </Box>
+      )}
+      {/*END LAST SEEN FEATURE*/}
       {userRole === "admin" && (
         <Infobox mb={5}>
           <Text

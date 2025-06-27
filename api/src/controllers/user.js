@@ -513,6 +513,10 @@ export const fetchUser = (tracker) => async (req, res, next) => {
           banned: 1,
           bonusPoints: 1,
           "totp.enabled": 1,
+          // ADD LAST SEEN FEATURE
+          lastSeen: 1,
+          timezone: 1,
+          // End of Last Seen Feature
         },
       },
       {
@@ -1181,7 +1185,10 @@ export const fetchAllUsers = async (req, res, next) => {
     const users = await User.find(filter)
       .sort({ created: -1 })
       .skip(page * limit)
-      .limit(limit);
+      .limit(limit)
+      // ADD LAST SEEN FEATURE
+      .select("username email role created banned lastSeen timezone");
+      // End of Last Seen Feature
     
     res.json({
       users,
@@ -1231,3 +1238,20 @@ export const deleteUser = async (req, res, next) => {
     next(e);
   }
 };
+
+// ADD LAST SEEN FEATURE
+export const updateTimezone = async (req, res, next) => {
+  if (!req.body.timezone) {
+    return res.status(400).send("Timezone is required");
+  }
+  try {
+    await User.findOneAndUpdate(
+      { _id: req.userId },
+      { $set: { timezone: req.body.timezone } }
+    );
+    res.sendStatus(200);
+  } catch (e) {
+    next(e);
+  }
+};
+// End of Last Seen Feature

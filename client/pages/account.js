@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react"; // ADD LAST SEEN FEATURE (Added useMemo)
 import getConfig from "next/config";
 import { useRouter } from "next/router";
 import moment from "moment";
@@ -23,6 +23,9 @@ import { NotificationContext } from "../components/Notifications";
 import Modal from "../components/Modal";
 import LoadingContext from "../utils/LoadingContext";
 import LocaleContext from "../utils/LocaleContext";
+// ADD LAST SEEN FEATURE
+import "moment-timezone";
+// End of Last Seen Feature
 
 const BuyItem = ({ text, cost, wallet, handleBuy }) => {
   const [amount, setAmount] = useState(1);
@@ -82,6 +85,11 @@ const Account = ({ token, invites = [], user, userRole }) => {
   const [totpQrData, setTotpQrData] = useState();
   const [totpBackupCodes, setTotpBackupCodes] = useState();
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  // ADD LAST SEEN FEATURE
+  const [timezone, setTimezone] = useState(user.timezone || "UTC");
+  const [timezoneSaving, setTimezoneSaving] = useState(false);
+  const timezones = useMemo(() => moment.tz.names(), []);
+  // End of Last Seen Feature
 
   const { addNotification } = useContext(NotificationContext);
   const { setLoading } = useContext(LoadingContext);
@@ -351,6 +359,32 @@ const Account = ({ token, invites = [], user, userRole }) => {
       console.error(e);
     }
   };
+
+  // ADD LAST SEEN FEATURE
+  const handleTimezoneChange = async (e) => {
+    const newTz = e.target.value;
+    setTimezoneSaving(true);
+    try {
+      const res = await fetch(`${SQ_API_URL}/account/timezone`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ timezone: newTz }),
+      });
+      if (res.status === 200) {
+        setTimezone(newTz);
+        addNotification("success", getLocaleString("timezoneUpdatedSuccess"));
+      } else {
+        addNotification("error", getLocaleString("timezoneUpdateError"));
+      }
+    } catch (e) {
+      addNotification("error", getLocaleString("timezoneUpdateError"));
+    }
+    setTimezoneSaving(false);
+  };
+  // End of Last Seen Feature
 
   return (
     <>
@@ -641,6 +675,24 @@ const Account = ({ token, invites = [], user, userRole }) => {
           <Button>{getLocaleString("accChangePass")}</Button>
         </form>
       </Box>
+      {/*ADD LAST SEEN FEATURE*/}
+      <Box mb={5}>
+        <Text as="h2" mb={3}>{getLocaleString("timezoneLabel")}</Text>
+        <Select
+          label={getLocaleString("timezoneLabel")}
+          value={timezone}
+          onChange={handleTimezoneChange}
+          disabled={timezoneSaving}
+          width="350px"
+        >
+          {timezones.map((tz) => (
+            <option key={tz} value={tz}>
+              {tz}
+            </option>
+          ))}
+        </Select>
+      </Box>
+      {/*End Last Seen Feature*/}
       {user.username !== "admin" && (
         <Box
           bg={transparentize(0.7, theme.colors.error)}

@@ -20,6 +20,18 @@ const User = new mongoose.Schema({
     backup: [String],
   },
   bookmarks: [mongoose.Schema.ObjectId],
+  // ADD LAST SEEN FEATURE
+  // Track the last time the user was seen (for activity tracking)
+  lastSeen: {
+    type: Date,
+    default: null,
+  },
+  // User-specific timezone (IANA format, e.g., 'Europe/Paris'). Optional.
+  timezone: {
+    type: String,
+    default: null,
+  },
+  // End of Last Seen Feature
 });
 
 export default mongoose.model("user", User);

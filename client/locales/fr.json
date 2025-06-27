@@ -396,5 +396,11 @@
   "adminUnbanUser": "Débannir",
   "adminNoUsersFound": "Aucun utilisateur trouvé",
   "headerSearchPlaceholder": "Rechercher",
-  "wikiAddNewPage": "Ajouter"
+  "wikiAddNewPage": "Ajouter",
+  "userLastSeen": "Dernier vu",
+  "userTimezone": "Fuseau horaire",
+  "adminLastSeenColumn": "Dernier vu",
+  "timezoneUpdatedSuccess": "Le fuseau horaire a mis à jour avec succès.",
+  "timezoneUpdateError": "Impossible de mettre à jour le fuseau horaire.",
+  "timezoneLabel": "Fuseau horaire"
 }

@@ -341,5 +341,11 @@
   "adminUnbanUser": "Desbanear",
   "adminNoUsersFound": "No se encontraron usuarios",
   "headerSearchPlaceholder": "Buscar",
-  "wikiAddNewPage": "Añadir nueva página"
+  "wikiAddNewPage": "Añadir nueva página",
+  "userLastSeen": "Último visto",
+  "userTimezone": "Zona horaria",
+  "adminLastSeenColumn": "Último visto",
+  "timezoneUpdatedSuccess": "Zona horaria actualizada con éxito.",
+  "timezoneUpdateError": "No se pudo actualizar la zona horaria.",
+  "timezoneLabel": "Zona horaria"
 }

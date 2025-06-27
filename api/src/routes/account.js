@@ -13,6 +13,9 @@ import {
   deleteAccount,
   getUserBookmarks,
   resendVerificationEmail,
+  // ADD LAST SEEN FEATURE
+  updateTimezone,
+  // End of Last Seen Feature
 } from "../controllers/user";
 
 const router = express.Router();
@@ -31,5 +34,8 @@ export default (tracker, mail) => {
   router.post("/delete", deleteAccount);
   router.get("/bookmarks", getUserBookmarks(tracker));
   router.post("/resend-verification", resendVerificationEmail(mail));
+  // ADD LAST SEEN FEATURE
+  router.post("/timezone", updateTimezone);
+  // End of Last Seen Feature
   return router;
 };
