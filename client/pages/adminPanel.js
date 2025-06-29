@@ -132,6 +132,7 @@ const AdminPanel = ({ token, userRole }) => {
   const [reports, setReports] = useState([]);
   const [viewerTimezone, setViewerTimezone] = useState("UTC");
   const router = useRouter();
+  const { publicRuntimeConfig: { SQ_DEFAULT_TIMEZONE } } = getConfig();
 
   // Fetch current admin's timezone on mount
   useEffect(() => {
@@ -142,12 +143,16 @@ const AdminPanel = ({ token, userRole }) => {
         });
         if (res.ok) {
           const viewer = await res.json();
-          setViewerTimezone(viewer.timezone || "UTC");
+          setViewerTimezone(viewer.timezone || SQ_DEFAULT_TIMEZONE || "UTC");
+        } else {
+          setViewerTimezone(SQ_DEFAULT_TIMEZONE || "UTC");
         }
-      } catch {}
+      } catch {
+        setViewerTimezone(SQ_DEFAULT_TIMEZONE || "UTC");
+      }
     };
     fetchViewer();
-  }, [token, router.query]);
+  }, [token, router.query, SQ_DEFAULT_TIMEZONE]);
 
   // Fetch users with pagination and search
   const fetchUsers = async (page = 0, searchTerm = search) => {

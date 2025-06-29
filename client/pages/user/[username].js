@@ -42,6 +42,7 @@ const User = ({ token, user, userRole }) => {
       SQ_MINIMUM_RATIO,
       SQ_MAXIMUM_HIT_N_RUNS,
       SQ_API_URL,
+      SQ_DEFAULT_TIMEZONE,
     },
   } = getConfig();
 
@@ -50,8 +51,8 @@ const User = ({ token, user, userRole }) => {
 
   const { getLocaleString } = useContext(LocaleContext);
 
-  // Get viewer's timezone from cookies or fallback to UTC
-  const viewerTimezone = cookies.timezone || "UTC";
+  // Get viewer's timezone from cookies, fallback to default from config, then UTC
+  const viewerTimezone = cookies.timezone || SQ_DEFAULT_TIMEZONE || "UTC";
 
   const handleBanUser = async () => {
     setLoading(true);

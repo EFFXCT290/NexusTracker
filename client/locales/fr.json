@@ -399,8 +399,8 @@
   "wikiAddNewPage": "Ajouter",
   "userLastSeen": "Dernier vu",
   "userTimezone": "Fuseau horaire",
-  "adminLastSeenColumn": "Dernier vu",
-  "timezoneUpdatedSuccess": "Le fuseau horaire a mis à jour avec succès.",
-  "timezoneUpdateError": "Impossible de mettre à jour le fuseau horaire.",
+  "adminLastSeenColumn": "Dernière activité",
+  "timezoneUpdatedSuccess": "Le fuseau horaire a été mis à jour avec succès.",
+  "timezoneUpdateError": "Erreur lors de la mise à jour du fuseau horaire.",
   "timezoneLabel": "Fuseau horaire"
 }
