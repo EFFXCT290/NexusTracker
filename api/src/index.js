@@ -24,6 +24,7 @@ import {
   requestRoutes,
   groupRoutes,
   wikiRoutes,
+  protectTorrentRoutes,
 } from "./routes";
 import {
   register,
@@ -184,6 +185,7 @@ validateConfig(config).then(() => {
   app.use("/group", groupRoutes());
   app.use("/wiki", wikiRoutes());
   app.use("/users", userRoutes(tracker));
+  app.use("/protect-torrent", protectTorrentRoutes);
 
   app.use((err, req, res, next) => {
     console.error(`[nx] error in ${req.url}:`, err);

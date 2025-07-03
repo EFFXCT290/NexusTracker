@@ -16,6 +16,10 @@ import Link from "next/link";
 import moment from "moment";
 import "moment-timezone";
 // End of Last Seen Feature
+// ADD PROTECT TORRENT FEATURE
+import { Lock } from "@styled-icons/boxicons-regular/Lock";
+import ProtectTorrentModal from "../components/ProtectTorrentModal";
+// End of Protect Torrent Feature
 
 // Styled components for the admin panel
 const StyledTable = styled.table(() =>
@@ -131,8 +135,20 @@ const AdminPanel = ({ token, userRole }) => {
   const [stats, setStats] = useState(null);
   const [reports, setReports] = useState([]);
   const [viewerTimezone, setViewerTimezone] = useState("UTC");
+  // ADD PROTECT TORRENT FEATURE
+  const [protectedTorrents, setProtectedTorrents] = useState([]);
+  const [unprotectedTorrents, setUnprotectedTorrents] = useState([]);
+  const [showProtectModal, setShowProtectModal] = useState(false);
+  const [selectedTorrent, setSelectedTorrent] = useState(null);
+  const [protectedLogs, setProtectedLogs] = useState({});
+  const [sortBy, setSortBy] = useState('created');
+  const [sortOrder, setSortOrder] = useState('desc');
+  // End of Protect Torrent Feature
   const router = useRouter();
   const { publicRuntimeConfig: { SQ_DEFAULT_TIMEZONE } } = getConfig();
+  // ADD PROTECT TORRENT FEATURE
+  const { publicRuntimeConfig: { SQ_ENABLE_PROTECTED_TORRENTS = false } } = getConfig();
+  // End of Protect Torrent Feature
 
   // Fetch current admin's timezone on mount
   useEffect(() => {
@@ -154,36 +170,33 @@ const AdminPanel = ({ token, userRole }) => {
     fetchViewer();
   }, [token, router.query, SQ_DEFAULT_TIMEZONE]);
 
-  // Fetch users with pagination and search
-  const fetchUsers = async (page = 0, searchTerm = search) => {
+  // Fetch users with pagination, search, and sorting
+  const fetchUsers = async (page = 0, searchTerm = search, sortField = sortBy, order = sortOrder) => {
     try {
       setLoading(true);
-      
       const queryParams = new URLSearchParams({
         page,
-        limit: pagination.limit
+        limit: pagination.limit,
+        sortBy: sortField,
+        sortOrder: order,
       });
-      
       if (searchTerm) {
         queryParams.append('search', searchTerm);
       }
-      
       const res = await fetch(
-        `${getConfig().publicRuntimeConfig.SQ_API_URL}/users?${queryParams.toString()}`, 
+        `${getConfig().publicRuntimeConfig.SQ_API_URL}/users?${queryParams.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      
       const data = await res.json();
-      
       setUsers(data.users || []);
       setPagination(data.pagination || pagination);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error('Error fetching users:', error);
       setLoading(false);
     }
   };
@@ -234,6 +247,72 @@ const AdminPanel = ({ token, userRole }) => {
     }
   };
 
+  // Fetch protected torrents (now fetches all torrents for separation)
+  const fetchProtectedTorrents = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${getConfig().publicRuntimeConfig.SQ_API_URL}/torrent/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProtectedTorrents(data.filter(t => t.isProtected));
+        setUnprotectedTorrents(data.filter(t => !t.isProtected));
+      } else {
+        console.error("Error fetching torrents:", res.status);
+      }
+    } catch (error) {
+      console.error("Error fetching torrents:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle editing protected torrent
+  const handleEditProtectedTorrent = (torrent) => {
+    setSelectedTorrent(torrent);
+    setShowProtectModal(true);
+  };
+
+  // Handle protection update
+  const handleProtectionUpdate = (settings) => {
+    if (settings.shouldRefetch) {
+      fetchProtectedTorrents();
+    }
+    // Optimistically update local state for instant UI feedback
+    if (selectedTorrent) {
+      if (settings.isProtected) {
+        // Move to protected
+        setProtectedTorrents((prev) => [
+          { ...selectedTorrent, isProtected: true },
+          ...prev.filter(t => t.infoHash !== selectedTorrent.infoHash)
+        ]);
+        setUnprotectedTorrents((prev) => prev.filter(t => t.infoHash !== selectedTorrent.infoHash));
+      } else {
+        // Move to unprotected
+        setUnprotectedTorrents((prev) => [
+          { ...selectedTorrent, isProtected: false },
+          ...prev.filter(t => t.infoHash !== selectedTorrent.infoHash)
+        ]);
+        setProtectedTorrents((prev) => prev.filter(t => t.infoHash !== selectedTorrent.infoHash));
+      }
+    }
+  };
+
+  // Fetch logs for a given torrent
+  const fetchProtectedLogs = async (infoHash) => {
+    try {
+      const res = await fetch(`${getConfig().publicRuntimeConfig.SQ_API_URL}/protect-torrent/logs/${infoHash}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProtectedLogs((prev) => ({ ...prev, [infoHash]: data.logs || [] }));
+      }
+    } catch (e) {}
+  };
+  // End of Protect Torrent Feature
+
   useEffect(() => {
     // Initial data fetch based on active tab
     if (activeTab === 'users') {
@@ -243,7 +322,23 @@ const AdminPanel = ({ token, userRole }) => {
     } else if (activeTab === 'reports') {
       fetchReports();
     }
+    // ADD PROTECT TORRENT FEATURE
+    else if (activeTab === 'protected-torrents' && SQ_ENABLE_PROTECTED_TORRENTS) {
+      fetchProtectedTorrents();
+    }
+    // End of Protect Torrent Feature
   }, [token, activeTab]);
+
+  // {*/ Add Protect Torrent Feature/*}
+  useEffect(() => {
+    if (activeTab === 'protected-torrents' && SQ_ENABLE_PROTECTED_TORRENTS) {
+      protectedTorrents.forEach(torrent => {
+        fetchProtectedLogs(torrent.infoHash);
+      });
+    }
+    // eslint-disable-next-line
+  }, [protectedTorrents, activeTab, SQ_ENABLE_PROTECTED_TORRENTS]);
+  // {*/End Protect Torrent Feature/*}
 
   const handleBanUser = async (user) => {
     try {
@@ -282,23 +377,34 @@ const AdminPanel = ({ token, userRole }) => {
     }
   };
   
+  // Handle sorting
+  const handleSort = (field) => {
+    let order = 'asc';
+    if (sortBy === field && sortOrder === 'asc') {
+      order = 'desc';
+    }
+    setSortBy(field);
+    setSortOrder(order);
+    fetchUsers(0, search, field, order);
+  };
+  
   // Handle page change
   const handlePageChange = (newPage) => {
     if (newPage >= 0 && newPage < pagination.pages) {
-      fetchUsers(newPage);
+      fetchUsers(newPage, search, sortBy, sortOrder);
     }
   };
   
   // Handle search
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchUsers(0, search);
+    fetchUsers(0, search, sortBy, sortOrder);
   };
   
   // Clear search
   const clearSearch = () => {
     setSearch('');
-    fetchUsers(0, '');
+    fetchUsers(0, '', sortBy, sortOrder);
   };
 
   // Handle switching tabs
@@ -364,6 +470,17 @@ const AdminPanel = ({ token, userRole }) => {
         >
           {getLocaleString("navReports")}
         </TabButton>
+        {/* ADD PROTECT TORRENT FEATURE */}
+        {SQ_ENABLE_PROTECTED_TORRENTS && (
+          <TabButton 
+            isActive={activeTab === 'protected-torrents'} 
+            onClick={() => handleTabChange('protected-torrents')}
+          >
+            <Lock size={16} style={{ marginRight: '8px' }} />
+            Protected Torrents
+          </TabButton>
+        )}
+        {/* End of Protect Torrent Feature */}
       </Box>
       
       {/* Users Tab Content */}
@@ -398,11 +515,23 @@ const AdminPanel = ({ token, userRole }) => {
               <StyledTable>
                 <thead>
                   <tr>
-                    <StyledTh>{getLocaleString("username")}</StyledTh>
-                    <StyledTh>{getLocaleString("role")}</StyledTh>
-                    <StyledTh>{getLocaleString("registrationDate")}</StyledTh>
-                    <StyledTh>{getLocaleString("adminLastSeenColumn")}</StyledTh>
-                    <StyledTh>{getLocaleString("actions")}</StyledTh>
+                    <StyledTh onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>
+                      {getLocaleString('username')}
+                      {sortBy === 'username' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
+                    </StyledTh>
+                    <StyledTh onClick={() => handleSort('role')} style={{ cursor: 'pointer' }}>
+                      {getLocaleString('role')}
+                      {sortBy === 'role' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
+                    </StyledTh>
+                    <StyledTh onClick={() => handleSort('created')} style={{ cursor: 'pointer' }}>
+                      {getLocaleString('registrationDate')}
+                      {sortBy === 'created' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
+                    </StyledTh>
+                    <StyledTh onClick={() => handleSort('lastSeen')} style={{ cursor: 'pointer' }}>
+                      {getLocaleString('adminLastSeenColumn')}
+                      {sortBy === 'lastSeen' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
+                    </StyledTh>
+                    <StyledTh>{getLocaleString('actions')}</StyledTh>
                   </tr>
                 </thead>
                 <tbody>
@@ -610,6 +739,100 @@ const AdminPanel = ({ token, userRole }) => {
             </Box>
           ) : (
             <Text>{getLocaleString("noReportsAvailable") || "No reports available"}</Text>
+          )}
+        </Box>
+      )}
+      
+      {/* ADD PROTECT TORRENT FEATURE */}
+      {SQ_ENABLE_PROTECTED_TORRENTS && (
+        <ProtectTorrentModal
+          isOpen={showProtectModal}
+          onClose={() => {
+            setShowProtectModal(false);
+            setSelectedTorrent(null);
+          }}
+          onProtect={handleProtectionUpdate}
+          infoHash={selectedTorrent?.infoHash || ""}
+          torrentName={selectedTorrent?.name || ""}
+          isProtected={Boolean(selectedTorrent?.isProtected)}
+          currentPassword=""
+        />
+      )}
+      {/* End of Protect Torrent Feature */}
+
+      {activeTab === 'protected-torrents' && SQ_ENABLE_PROTECTED_TORRENTS && (
+        <Box bg="sidebar" p={4} borderRadius="4px">
+          {loading ? (
+            <Text>Loading torrents...</Text>
+          ) : (protectedTorrents.length > 0 || unprotectedTorrents.length > 0) ? (
+            <>
+              <Text as="h2" mb={3}>Protected Torrents</Text>
+              <StyledTable>
+                <thead>
+                  <tr>
+                    <StyledTh>Name</StyledTh>
+                    <StyledTh>Uploaded</StyledTh>
+                    <StyledTh>Uploader</StyledTh>
+                    <StyledTh>Actions</StyledTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  {protectedTorrents.map(torrent => (
+                    <StyledTr key={torrent._id || torrent.infoHash}>
+                      <StyledTd>
+                        <Link href={`/torrent/${torrent.infoHash}`} passHref>
+                          <Text as="a" fontWeight="bold">{torrent.name || torrent.infoHash}</Text>
+                        </Link>
+                        <Text fontFamily="mono" fontSize="xs" color="grey" mt={1}>{torrent.infoHash}</Text>
+                      </StyledTd>
+                      <StyledTd>
+                        {torrent.created ? new Date(torrent.created).toLocaleString() : "-"}
+                      </StyledTd>
+                      <StyledTd>
+                        {torrent.uploadedBy?.username || "deleted user"}
+                      </StyledTd>
+                      <StyledTd>
+                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>Update Protection</Button>
+                      </StyledTd>
+                    </StyledTr>
+                  ))}
+                </tbody>
+              </StyledTable>
+              <Text as="h2" mb={3} mt={5}>Unprotected Torrents</Text>
+              <StyledTable>
+                <thead>
+                  <tr>
+                    <StyledTh>Name</StyledTh>
+                    <StyledTh>Uploaded</StyledTh>
+                    <StyledTh>Uploader</StyledTh>
+                    <StyledTh>Actions</StyledTh>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unprotectedTorrents.map(torrent => (
+                    <StyledTr key={torrent._id || torrent.infoHash}>
+                      <StyledTd>
+                        <Link href={`/torrent/${torrent.infoHash}`} passHref>
+                          <Text as="a" fontWeight="bold">{torrent.name || torrent.infoHash}</Text>
+                        </Link>
+                        <Text fontFamily="mono" fontSize="xs" color="grey" mt={1}>{torrent.infoHash}</Text>
+                      </StyledTd>
+                      <StyledTd>
+                        {torrent.created ? new Date(torrent.created).toLocaleString() : "-"}
+                      </StyledTd>
+                      <StyledTd>
+                        {torrent.uploadedBy?.username || "deleted user"}
+                      </StyledTd>
+                      <StyledTd>
+                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>Update Protection</Button>
+                      </StyledTd>
+                    </StyledTr>
+                  ))}
+                </tbody>
+              </StyledTable>
+            </>
+          ) : (
+            <Text>No torrents found</Text>
           )}
         </Box>
       )}

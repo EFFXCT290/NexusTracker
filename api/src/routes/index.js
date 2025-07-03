@@ -8,6 +8,7 @@ import adminRoutes from "./admin";
 import requestRoutes from "./request";
 import groupRoutes from "./group";
 import wikiRoutes from "./wiki";
+import protectTorrentRoutes from "./protectTorrent";
 import { auth } from "../middleware/auth";
 import { resendVerification } from "../controllers/resendVerification";
 import reportRouter from "./report";
@@ -22,6 +23,7 @@ export {
   requestRoutes,
   groupRoutes,
   wikiRoutes,
+  protectTorrentRoutes,
 };
 
 const router = express.Router();

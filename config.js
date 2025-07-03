@@ -94,6 +94,11 @@ module.exports = {
     // Default timezone for displaying dates/times (e.g., "Europe/Paris", "UTC", "America/New_York")
     SQ_DEFAULT_TIMEZONE: "UTC",
     // End of Last Seen Feature
+
+    // ADD PROTECT TORRENT FEATURE
+    // Enable or disable the "protected torrent" feature
+    SQ_ENABLE_PROTECTED_TORRENTS: true,
+    // End of Protect Torrent Feature
   },
   secrets: {
     // The URL of your MongoDB server.

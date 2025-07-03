@@ -156,6 +156,9 @@ export const uploadTorrent = async (req, res, next) => {
         tags: (req.body.tags ?? "").split(",").map((t) => formatTag(t)),
         group: groupId,
         mediaInfo: req.body.mediaInfo,
+        isProtected: req.body.isProtected || false,
+        protectedPassword: req.body.protectedPassword || null,
+        protectedLogs: [],
       });
       await newTorrent.save();
 
@@ -268,6 +271,35 @@ export const downloadTorrent = async (req, res, next) => {
       return res.status(404).send("Torrent not found");
     }
 
+    // ADD PROTECT TORRENT FEATURE
+    // Check if torrent is protected and password verification is required
+    if (torrent.isProtected) {
+      const { password } = req.body;
+      if (!password) {
+        return res.status(403).send("Password required for protected torrent");
+      }
+      
+      // Verify password
+      const crypto = require("crypto");
+      const hashedPassword = crypto.createHash("sha256").update(password + process.env.SQ_JWT_SECRET).digest("hex");
+      
+      if (hashedPassword !== torrent.protectedPassword) {
+        return res.status(403).send("Invalid password for protected torrent");
+      }
+      
+      // Log the download
+      const torrentDoc = await Torrent.findOne({ infoHash });
+      torrentDoc.protectedLogs.push({
+        username: user.username,
+        email: user.email,
+        torrentName: torrent.name,
+        downloadedAt: Date.now(),
+        passwordUsed: password
+      });
+      await torrentDoc.save();
+    }
+    // End of Protect Torrent Feature
+
     const parsed = bencode.decode(Buffer.from(torrent.binary, "base64"));
     
     parsed.announce = `${process.env.SQ_BASE_URL}/sq/${user.uid}/announce`;
@@ -319,6 +351,7 @@ export const fetchTorrent = (tracker) => async (req, res, next) => {
           tags: 1,
           group: 1,
           mediaInfo: 1,
+          isProtected: 1,
         },
       },
       {
@@ -717,7 +750,29 @@ export const listLatest = (tracker) => async (req, res, next) => {
 
 export const listAll = async (req, res, next) => {
   try {
-    const torrents = await Torrent.find({}, { infoHash: 1 }).lean();
+    const torrents = await Torrent.aggregate([
+      {
+        $project: {
+          name: 1,
+          infoHash: 1,
+          created: 1,
+          uploadedBy: 1,
+          isProtected: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          as: "uploadedBy",
+          let: { userId: "$uploadedBy" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$userId"] } } },
+            { $project: { username: 1 } },
+          ],
+        },
+      },
+      { $unwind: { path: "$uploadedBy", preserveNullAndEmptyArrays: true } },
+    ]);
     res.json(torrents);
   } catch (e) {
     next(e);

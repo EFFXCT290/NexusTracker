@@ -59,6 +59,9 @@ const configSchema = yup
         SQ_ENABLE_LAST_SEEN: yup.boolean().required(),
         SQ_DEFAULT_TIMEZONE: yup.string().required(),
         // End of Last Seen Feature
+        // ADD PROTECT TORRENT FEATURE
+        SQ_ENABLE_PROTECTED_TORRENTS: yup.boolean().required(),
+        // End of Protect Torrent Feature
       })
       .strict()
       .noUnknown()

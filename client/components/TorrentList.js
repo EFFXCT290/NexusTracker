@@ -21,6 +21,7 @@ import Button from "./Button";
 import LocaleContext from "../utils/LocaleContext";
 import { NotificationContext } from "../components/Notifications";
 import Link from "next/link";
+import DownloadProtectedTorrentModal from "./DownloadProtectedTorrentModal";
 
 const pageSize = 25;
 
@@ -34,7 +35,7 @@ const TorrentList = ({
   userStats,
 }) => {
   const {
-    publicRuntimeConfig: { SQ_SITE_WIDE_FREELEECH, SQ_API_URL, SQ_SITE_NAME, SQ_MINIMUM_RATIO, SQ_MAXIMUM_HIT_N_RUNS },
+    publicRuntimeConfig: { SQ_SITE_WIDE_FREELEECH, SQ_API_URL, SQ_SITE_NAME, SQ_MINIMUM_RATIO, SQ_MAXIMUM_HIT_N_RUNS, SQ_ENABLE_PROTECTED_TORRENTS = false },
   } = getConfig();
 
   const router = useRouter();
@@ -83,22 +84,42 @@ const TorrentList = ({
   const { addNotification } = useContext(NotificationContext);
   const isFrench = locale === 'fr';
 
+  const [showDownloadModal, setShowDownloadModal] = React.useState(false);
+  const [selectedTorrent, setSelectedTorrent] = React.useState(null);
+
   // Function to handle torrent download
-  const handleDownloadTorrent = async (event, torrent) => {
+  const handleDownloadTorrent = async (event, torrent, password = null) => {
     event.preventDefault(); // Prevent default link behavior
     event.stopPropagation(); // Stop event from bubbling up
+
+    if (SQ_ENABLE_PROTECTED_TORRENTS && torrent.isProtected && !password) {
+      setSelectedTorrent(torrent);
+      setShowDownloadModal(true);
+      return;
+    }
 
     try {
       const response = await fetch(
         `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
         {
+          method: "POST", // Always use POST
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify(password ? { password } : {}), // Always send a JSON body
         }
       );
       
       if (!response.ok) {
+        if (response.status === 403) {
+          const errorText = await response.text();
+          if (errorText.includes("Password required") || errorText.includes("Invalid password")) {
+            setSelectedTorrent(torrent);
+            setShowDownloadModal(true);
+            return;
+          }
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -116,7 +137,7 @@ const TorrentList = ({
       document.body.removeChild(a);
     } catch (error) {
       console.error('Download failed:', error);
-      addNotification('error', 'Failed to download torrent file');
+      addNotification('error', getLocaleString('torrentDownloadFailed'));
     }
   };
 
@@ -360,6 +381,15 @@ const TorrentList = ({
             {(maxPage + 1).toLocaleString()}
           </Text>
         </Box>
+      )}
+      {SQ_ENABLE_PROTECTED_TORRENTS && selectedTorrent && (
+        <DownloadProtectedTorrentModal
+          isOpen={showDownloadModal}
+          onClose={() => setShowDownloadModal(false)}
+          torrentName={selectedTorrent.name}
+          infoHash={selectedTorrent.infoHash}
+          onDownload={(password) => handleDownloadTorrent({ preventDefault: () => {}, stopPropagation: () => {} }, selectedTorrent, password)}
+        />
       )}
     </>
   );

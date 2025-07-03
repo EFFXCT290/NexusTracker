@@ -36,7 +36,7 @@ export default (tracker) => {
   router.get("/all", listAll);
   router.get("/search", searchTorrents(tracker));
   router.get("/tags", listTags);
-  router.get("/download/:infoHash", downloadTorrent);
+  router.post("/download/:infoHash", downloadTorrent);
   router.delete('/comment/:commentId', auth, async (req, res) => {
     return deleteComment(req, res);
   });

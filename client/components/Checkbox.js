@@ -51,9 +51,9 @@ const Container = styled.label(
   space
 );
 
-const Checkbox = ({ label, name, inputProps, ...rest }) => (
+const Checkbox = ({ label, name, inputProps, checked, onChange, ...rest }) => (
   <Container {...rest}>
-    <input type="checkbox" name={name} {...inputProps} />
+    <input type="checkbox" name={name} checked={checked} onChange={onChange} {...inputProps} />
     <Box alignItems="center" justifyContent="center" className="check">
       <Box className="inner" />
     </Box>

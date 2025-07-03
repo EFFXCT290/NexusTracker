@@ -55,16 +55,27 @@ export const rssFeed = (tracker) => async (req, res, next) => {
         {
           $or: [
             { name: { $regex: decodeURIComponent(query), $options: "i" } },
-            {
-              description: { $regex: decodeURIComponent(query), $options: "i" },
-            },
+            { description: { $regex: decodeURIComponent(query), $options: "i" } },
           ],
+          $and: [
+            {
+              $or: [
+                { isProtected: { $exists: false } },
+                { isProtected: false }
+              ]
+            }
+          ]
         },
         null,
         { sort: { created: -1 }, limit: 100 }
       ).lean();
     } else {
-      torrents = await Torrent.find({}, null, {
+      torrents = await Torrent.find({
+        $or: [
+          { isProtected: { $exists: false } },
+          { isProtected: false }
+        ]
+      }, null, {
         sort: { created: -1 },
         limit: 100,
       }).lean();

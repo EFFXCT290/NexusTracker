@@ -1168,7 +1168,9 @@ export const fetchAllUsers = async (req, res, next) => {
     const page = parseInt(req.query.page) || 0;
     const limit = parseInt(req.query.limit) || 10;
     const searchQuery = req.query.search || '';
-    
+    const sortBy = req.query.sortBy || 'created';
+    const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+
     // Build the search filter
     const filter = {};
     if (searchQuery) {
@@ -1177,19 +1179,39 @@ export const fetchAllUsers = async (req, res, next) => {
         { email: { $regex: searchQuery, $options: 'i' } }
       ];
     }
-    
+
+    // Determine sort field
+    let sortField;
+    switch (sortBy) {
+      case 'username':
+        sortField = 'username';
+        break;
+      case 'role':
+        sortField = 'role';
+        break;
+      case 'lastSeen':
+        sortField = 'lastSeen';
+        break;
+      case 'created':
+      default:
+        sortField = 'created';
+        break;
+    }
+    const sortObj = {};
+    sortObj[sortField] = sortOrder;
+
     // Count total documents for pagination info
     const total = await User.countDocuments(filter);
-    
-    // Fetch users with pagination
+
+    // Fetch users with pagination and sorting
     const users = await User.find(filter)
-      .sort({ created: -1 })
+      .sort(sortObj)
       .skip(page * limit)
       .limit(limit)
       // ADD LAST SEEN FEATURE
       .select("username email role created banned lastSeen timezone");
       // End of Last Seen Feature
-    
+
     res.json({
       users,
       pagination: {

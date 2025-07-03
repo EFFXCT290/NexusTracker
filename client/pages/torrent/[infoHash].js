@@ -15,6 +15,7 @@ import { Like } from "@styled-icons/boxicons-regular/Like";
 import { Dislike } from "@styled-icons/boxicons-regular/Dislike";
 import { Bookmark as BookmarkEmpty } from "@styled-icons/boxicons-regular/Bookmark";
 import { Bookmark } from "@styled-icons/boxicons-solid/Bookmark";
+import { Lock } from "@styled-icons/boxicons-regular/Lock";
 import { withAuthServerSideProps } from "../../utils/withAuth";
 import SEO from "../../components/SEO";
 import Box from "../../components/Box";
@@ -31,6 +32,7 @@ import LoadingContext from "../../utils/LoadingContext";
 import { TorrentFields } from "../upload";
 import MarkdownInput from "../../components/MarkdownInput";
 import LocaleContext from "../../utils/LocaleContext";
+import DownloadProtectedTorrentModal from "../../components/DownloadProtectedTorrentModal";
 
 // from https://stackoverflow.com/a/44681235/7739519
 const insert = (children = [], [head, ...tail], size) => {
@@ -137,6 +139,7 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [userVote, setUserVote] = useState(
     (torrent.userHasUpvoted && "up") ||
       (torrent.userHasDownvoted && "down") ||
@@ -164,6 +167,7 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
       SQ_MINIMUM_RATIO,
       SQ_MAXIMUM_HIT_N_RUNS,
       SQ_SITE_NAME,
+      SQ_ENABLE_PROTECTED_TORRENTS = false,
     },
   } = getConfig();
 
@@ -496,6 +500,49 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
     setLoading(false);
   };
 
+  const handleDownload = async (password = null) => {
+    try {
+      const response = await fetch(
+        `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: password ? JSON.stringify({ password }) : undefined,
+        }
+      );
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          const errorText = await response.text();
+          if (errorText.includes("Password required") || errorText.includes("Invalid password")) {
+            setShowDownloadModal(true);
+            return;
+          }
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      // Create a download link with proper filename
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${torrent.name} - ${SQ_SITE_NAME}.torrent`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      addNotification('error', 'Failed to download torrent file');
+    }
+  };
+
   const category = Object.keys(SQ_TORRENT_CATEGORIES).find(
     (c) => slugify(c, { lower: true }) === torrent.type
   );
@@ -592,41 +639,19 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
           )}
           {userId ? (
             <Button
-              onClick={async () => {
-                try {
-                  const response = await fetch(
-                    `${SQ_API_URL}/torrent/download/${torrent.infoHash}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${token}`,
-                      },
-                    }
-                  );
-                  
-                  if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                  }
-                  
-                  // Get the blob from the response
-                  const blob = await response.blob();
-                  
-                  // Create a download link with proper filename
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `${torrent.name} - ${SQ_SITE_NAME}.torrent`;
-                  document.body.appendChild(a);
-                  a.click();
-                  window.URL.revokeObjectURL(url);
-                  document.body.removeChild(a);
-                } catch (error) {
-                  console.error('Download failed:', error);
-                  addNotification('error', 'Failed to download torrent file');
+              onClick={() => {
+                if (SQ_ENABLE_PROTECTED_TORRENTS && torrent.isProtected) {
+                  setShowDownloadModal(true);
+                } else {
+                  handleDownload();
                 }
               }}
               disabled={downloadDisabled}
             >
               {getLocaleString("torrDownload")} .torrent
+              {SQ_ENABLE_PROTECTED_TORRENTS && torrent.isProtected && (
+                <Lock size={16} style={{ marginLeft: '8px' }} />
+              )}
             </Button>
           ) : (
             <Link href="/login" passHref>
@@ -967,6 +992,15 @@ const Torrent = ({ token, torrent = {}, userId, userRole, uid, userStats }) => {
             </Button>
           </Box>
         </Modal>
+      )}
+      {SQ_ENABLE_PROTECTED_TORRENTS && (
+        <DownloadProtectedTorrentModal
+          isOpen={showDownloadModal}
+          onClose={() => setShowDownloadModal(false)}
+          torrentName={torrent.name}
+          infoHash={torrent.infoHash}
+          onDownload={handleDownload}
+        />
       )}
     </>
   );

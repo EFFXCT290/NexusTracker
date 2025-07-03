@@ -10,7 +10,9 @@ import { Check } from "@styled-icons/boxicons-regular/Check";
 import { InfoCircle } from "@styled-icons/boxicons-regular/InfoCircle";
 import { Plus } from "@styled-icons/boxicons-regular/Plus";
 import { X } from "@styled-icons/boxicons-regular/X";
+import { Lock } from "@styled-icons/boxicons-regular/Lock";
 import { withAuth } from "../utils/withAuth";
+import { withAuthServerSideProps } from "../utils/withAuth";
 import SEO from "../components/SEO";
 import Box from "../components/Box";
 import Text from "../components/Text";
@@ -24,6 +26,7 @@ import { NotificationContext } from "../components/Notifications";
 import LoadingContext from "../utils/LoadingContext";
 import LocaleContext from "../utils/LocaleContext";
 import MarkdownInput from "../components/MarkdownInput";
+import { useCookies } from "react-cookie";
 
 const FileUpload = styled(Box)(() =>
   css({
@@ -183,11 +186,16 @@ export const TorrentFields = ({
   );
 };
 
-const Upload = ({ token, userId }) => {
+const Upload = ({ token, userId, userRole }) => {
   const [torrentFile, setTorrentFile] = useState();
   const [posterFile, setPosterFile] = useState();
   const [dropError, setDropError] = useState("");
   const [groupSuggestions, setGroupSuggestions] = useState([]);
+  const [protectSettings, setProtectSettings] = useState({
+    isProtected: false,
+    password: ""
+  });
+  const [cookies] = useCookies();
 
   const {
     publicRuntimeConfig: {
@@ -196,6 +204,7 @@ const Upload = ({ token, userId }) => {
       SQ_TORRENT_CATEGORIES,
       SQ_ALLOW_ANONYMOUS_UPLOAD,
       SQ_EXTENSION_BLACKLIST = [],
+      SQ_ENABLE_PROTECTED_TORRENTS = false,
     },
   } = getConfig();
 
@@ -289,15 +298,13 @@ const Upload = ({ token, userId }) => {
     e.preventDefault();
     setLoading(true);
     const form = new FormData(e.target);
-
     try {
       if (!torrentFile) throw new Error("No .torrent file added");
-
       let posterData = null;
       if (posterFile) {
         posterData = posterFile.b64;
       }
-
+      // 1. Upload the torrent (without protection fields)
       const uploadRes = await fetch(`${SQ_API_URL}/torrent/upload`, {
         method: "POST",
         headers: {
@@ -317,18 +324,36 @@ const Upload = ({ token, userId }) => {
           anonymous: form.get("anonymous") === "on",
         }),
       });
-
       if (uploadRes.status !== 200) {
         const reason = await uploadRes.text();
         throw new Error(reason);
       }
-
+      const infoHash = await uploadRes.text();
+      // 2. If protection is requested, set protection after upload
+      if (protectSettings.isProtected && protectSettings.password) {
+        const protectRes = await fetch(`${SQ_API_URL}/protect-torrent/set/${infoHash}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies.token || token}`,
+          },
+          body: JSON.stringify({
+            isProtected: true,
+            password: protectSettings.password,
+          }),
+        });
+        if (!protectRes.ok) {
+          const error = await protectRes.text();
+          addNotification("error", getLocaleString("uploadFailedToProtect").replace("{error}", error));
+          setLoading(false);
+          router.push(`/torrent/${infoHash}`);
+          return;
+        }
+      }
       addNotification(
         "success",
         `${getLocaleString("uploadTorrentUploadSuccess")}`
       );
-
-      const infoHash = await uploadRes.text();
       router.push(`/torrent/${infoHash}`);
     } catch (e) {
       addNotification(
@@ -337,7 +362,6 @@ const Upload = ({ token, userId }) => {
       );
       console.error(e);
     }
-
     setLoading(false);
   };
 
@@ -553,6 +577,45 @@ const Upload = ({ token, userId }) => {
             label={getLocaleString("uploadAnonymousUpload")}
           />
         )}
+        {SQ_ENABLE_PROTECTED_TORRENTS && userRole === "admin" && (
+          <Box mb={4}>
+            <Box display="flex" alignItems="center" mb={3}>
+              <Checkbox
+                checked={protectSettings.isProtected}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setProtectSettings({ isProtected: true, password: "" });
+                  } else {
+                    setProtectSettings({ isProtected: false, password: "" });
+                  }
+                }}
+                label="Protect this torrent with a password"
+              />
+              {protectSettings.isProtected && (
+                <Box ml={3} display="flex" alignItems="center">
+                  <Lock size={16} color="#e74c3c" />
+                  <Text as="span" ml={1} color="grey" fontSize="sm">
+                    Protected
+                  </Text>
+                </Box>
+              )}
+            </Box>
+            {protectSettings.isProtected && (
+              <>
+                <Input
+                  type="password"
+                  label="Password"
+                  value={protectSettings.password}
+                  onChange={(e) => setProtectSettings(ps => ({ ...ps, password: e.target.value }))}
+                  placeholder="Enter protection password"
+                  required
+                  icon={<Lock size={16} />}
+                  mb={3}
+                />
+              </>
+            )}
+          </Box>
+        )}
         <Button display="block" ml="auto" mt={5}>
           {getLocaleString("uploadUpload")}
         </Button>
@@ -567,3 +630,12 @@ const Upload = ({ token, userId }) => {
 };
 
 export default withAuth(Upload);
+
+export const getServerSideProps = withAuthServerSideProps(
+  async ({ token, fetchHeaders }) => {
+    // Get user role from token
+    const jwt = require("jsonwebtoken");
+    const { role } = jwt.verify(token, getConfig().serverRuntimeConfig.SQ_JWT_SECRET);
+    return { props: { userRole: role } };
+  }
+);
