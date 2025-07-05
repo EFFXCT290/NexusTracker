@@ -10,7 +10,7 @@ const nextConfig = {
   },
   publicRuntimeConfig: {
     ...config.envs,
-    SQ_VERSION: version,
+    SQ_VERSION: "1.8.1",
   },
   serverRuntimeConfig: {
     ...config.envs,
