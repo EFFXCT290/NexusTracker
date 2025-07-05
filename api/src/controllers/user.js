@@ -890,6 +890,7 @@ export const buyItems = async (req, res, next) => {
 
         const progressRecord = new Progress({
           infoHash: `purchase-${Date.now()}`,
+          peerId: `purchase-${Date.now()}`,
           userId: req.userId,
           uploaded: {
             session: BYTES_GB * amount,

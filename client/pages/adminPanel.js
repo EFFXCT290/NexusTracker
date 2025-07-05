@@ -361,7 +361,7 @@ const AdminPanel = ({ token, userRole }) => {
 
   const handleDeleteUser = async (user) => {
     try {
-      if (window.confirm(`Are you sure you want to delete user ${user.username}?`)) {
+      if (window.confirm(getLocaleString("adminDeleteUserConfirm").replace("{username}", user.username))) {
         await fetch(`${getConfig().publicRuntimeConfig.SQ_API_URL}/user/${user.username}`, {
           method: "DELETE",
           headers: {
@@ -373,7 +373,7 @@ const AdminPanel = ({ token, userRole }) => {
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert("Failed to delete user. See console for details.");
+      alert(getLocaleString("adminDeleteUserFailed"));
     }
   };
   
@@ -499,7 +499,7 @@ const AdminPanel = ({ token, userRole }) => {
                 />
                 <Button type="submit" mr={2}>{getLocaleString("indexSearch")}</Button>
                 {search && (
-                  <Button onClick={clearSearch} variant="secondary">Clear</Button>
+                  <Button onClick={clearSearch} variant="secondary">{getLocaleString("clear")}</Button>
                 )}
               </Box>
             </form>
@@ -508,7 +508,7 @@ const AdminPanel = ({ token, userRole }) => {
           {/* Users Table */}
           {loading ? (
             <Box py={4} textAlign="center">
-              <Text>Loading...</Text>
+              <Text>{getLocaleString("loading")}</Text>
             </Box>
           ) : (
             <Box>
@@ -602,7 +602,7 @@ const AdminPanel = ({ token, userRole }) => {
       {activeTab === 'stats' && (
         <Box bg="sidebar" p={4} borderRadius="4px">
           {loading ? (
-            <Text>Loading stats...</Text>
+            <Text>{getLocaleString("loading")}</Text>
           ) : stats ? (
             <Box>
               <Text as="h2" mb={3}>{getLocaleString("navStats")}</Text>
@@ -682,7 +682,7 @@ const AdminPanel = ({ token, userRole }) => {
               </Box>
             </Box>
           ) : (
-            <Text>No stats available</Text>
+            <Text>{getLocaleString("adminNoStatsAvailable")}</Text>
           )}
         </Box>
       )}
@@ -691,7 +691,7 @@ const AdminPanel = ({ token, userRole }) => {
       {activeTab === 'reports' && (
         <Box bg="sidebar" p={4} borderRadius="4px">
           {loading ? (
-            <Text>Loading reports...</Text>
+            <Text>{getLocaleString("loading")}</Text>
           ) : reports.length > 0 ? (
             <Box>
               <Text as="h2" mb={3}>{getLocaleString("navReports")}</Text>
@@ -763,10 +763,10 @@ const AdminPanel = ({ token, userRole }) => {
       {activeTab === 'protected-torrents' && SQ_ENABLE_PROTECTED_TORRENTS && (
         <Box bg="sidebar" p={4} borderRadius="4px">
           {loading ? (
-            <Text>Loading torrents...</Text>
+            <Text>{getLocaleString("loading")}</Text>
           ) : (protectedTorrents.length > 0 || unprotectedTorrents.length > 0) ? (
             <>
-              <Text as="h2" mb={3}>Protected Torrents</Text>
+              <Text as="h2" mb={3}>{getLocaleString("adminProtectedTorrents")}</Text>
               <StyledTable>
                 <thead>
                   <tr>
@@ -789,16 +789,16 @@ const AdminPanel = ({ token, userRole }) => {
                         {torrent.created ? new Date(torrent.created).toLocaleString() : "-"}
                       </StyledTd>
                       <StyledTd>
-                        {torrent.uploadedBy?.username || "deleted user"}
+                        {torrent.uploadedBy?.username || getLocaleString("comDelUser")}
                       </StyledTd>
                       <StyledTd>
-                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>Update Protection</Button>
+                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>{getLocaleString("protectTorrentUpdate")}</Button>
                       </StyledTd>
                     </StyledTr>
                   ))}
                 </tbody>
               </StyledTable>
-              <Text as="h2" mb={3} mt={5}>Unprotected Torrents</Text>
+              <Text as="h2" mb={3} mt={5}>{getLocaleString("adminUnprotectedTorrents")}</Text>
               <StyledTable>
                 <thead>
                   <tr>
@@ -821,10 +821,10 @@ const AdminPanel = ({ token, userRole }) => {
                         {torrent.created ? new Date(torrent.created).toLocaleString() : "-"}
                       </StyledTd>
                       <StyledTd>
-                        {torrent.uploadedBy?.username || "deleted user"}
+                        {torrent.uploadedBy?.username || getLocaleString("comDelUser")}
                       </StyledTd>
                       <StyledTd>
-                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>Update Protection</Button>
+                        <Button size="small" onClick={() => { setSelectedTorrent(torrent); setShowProtectModal(true); }}>{getLocaleString("protectTorrentUpdate")}</Button>
                       </StyledTd>
                     </StyledTr>
                   ))}
@@ -832,7 +832,7 @@ const AdminPanel = ({ token, userRole }) => {
               </StyledTable>
             </>
           ) : (
-            <Text>No torrents found</Text>
+            <Text>{getLocaleString("adminNoTorrentsFound")}</Text>
           )}
         </Box>
       )}

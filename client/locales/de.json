@@ -398,5 +398,13 @@
   "protectTorrentUnprotectOk": "OK",
   "torrentDownloadFailed": "Die Torrent -Datei nicht herunterladen",
   "uploadFailedToProtect": "Torrent hochgeladen, aber nicht schützt: {error}",
-  "downloadProtectedIncorrectPassword": "Falsches Passwort. "
+  "downloadProtectedIncorrectPassword": "Falsches Passwort. ",
+  "adminUnprotectedTorrents": "Nicht geschützte Torrents",
+  "protectTorrentRemoved": "Torrent-Schutz entfernt",
+  "clear": "Löschen",
+  "loading": "Lädt...",
+  "adminNoStatsAvailable": "Keine Statistiken verfügbar",
+  "adminNoTorrentsFound": "Keine Torrents gefunden",
+  "adminDeleteUserConfirm": "Sind Sie sicher, dass Sie den Benutzer {username} löschen möchten?",
+  "adminDeleteUserFailed": "Benutzer konnte nicht gelöscht werden. Siehe Konsole für Details."
 }

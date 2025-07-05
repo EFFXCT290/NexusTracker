@@ -418,5 +418,12 @@
   "protectTorrentUnprotectOk": "OK",
   "torrentDownloadFailed": "Failed to download torrent file",
   "uploadFailedToProtect": "Torrent uploaded, but failed to protect: {error}",
-  "downloadProtectedIncorrectPassword": "Incorrect password. Please try again."
+  "downloadProtectedIncorrectPassword": "Incorrect password. Please try again.",
+  "clear": "Clear",
+  "loading": "Loading...",
+  "adminNoStatsAvailable": "No stats available",
+  "adminNoTorrentsFound": "No torrents found",
+  "adminDeleteUserConfirm": "Are you sure you want to delete user {username}?",
+  "adminDeleteUserFailed": "Failed to delete user. See console for details.",
+  "adminUnprotectedTorrents": "Unprotected Torrents"
 }

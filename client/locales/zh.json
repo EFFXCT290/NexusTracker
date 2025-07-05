@@ -396,6 +396,13 @@
   "protectTorrentUnprotectOk": "好的",
   "torrentDownloadFailed": "无法下载洪流文件",
   "uploadFailedToProtect": "洪流上传，但无法保护：{error}",
-  "downloadProtectedIncorrectPassword": "密码不正确。"
-
+  "downloadProtectedIncorrectPassword": "密码不正确。",
+  "adminUnprotectedTorrents": "未受保护的种子",
+  "protectTorrentRemoved": "种子保护已移除",
+  "clear": "清除",
+  "loading": "加载中...",
+  "adminNoStatsAvailable": "没有可用的统计数据",
+  "adminNoTorrentsFound": "未找到种子",
+  "adminDeleteUserConfirm": "您确定要删除用户 {username} 吗？",
+  "adminDeleteUserFailed": "无法删除用户。请查看控制台了解详情。"
 }

@@ -397,5 +397,13 @@
   "protectTorrentUnprotectOk": "OK",
   "torrentDownloadFailed": "Impossibile scaricare il file torrent",
   "uploadFailedToProtect": "Torrent caricato, ma non è riuscito a proteggere: {error}",
-  "downloadProtectedIncorrectPassword": "Password errata. "
+  "downloadProtectedIncorrectPassword": "Password errata. ",
+  "adminUnprotectedTorrents": "Torrent non protetti",
+  "protectTorrentRemoved": "Protezione del torrent rimossa",
+  "clear": "Cancella",
+  "loading": "Caricamento...",
+  "adminNoStatsAvailable": "Nessuna statistica disponibile",
+  "adminNoTorrentsFound": "Nessun torrent trovato",
+  "adminDeleteUserConfirm": "Sei sicuro di voler eliminare l'utente {username}?",
+  "adminDeleteUserFailed": "Impossibile eliminare l'utente. Vedi la console per i dettagli."
 }

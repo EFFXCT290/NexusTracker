@@ -393,5 +393,13 @@
   "protectTorrentUnprotectOk": "ХОРОШО",
   "torrentDownloadFailed": "Не удалось скачать торрент -файл",
   "uploadFailedToProtect": "Торрент загружен, но не удалось защитить: {error}",
-  "downloadProtectedIncorrectPassword": "Неправильный пароль. "
+  "downloadProtectedIncorrectPassword": "Неправильный пароль. ",
+  "adminUnprotectedTorrents": "Не защищённые торренты",
+  "protectTorrentRemoved": "Защита торрента удалена",
+  "clear": "Очистить",
+  "loading": "Загрузка...",
+  "adminNoStatsAvailable": "Нет доступной статистики",
+  "adminNoTorrentsFound": "Торренты не найдены",
+  "adminDeleteUserConfirm": "Вы уверены, что хотите удалить пользователя {username}?",
+  "adminDeleteUserFailed": "Не удалось удалить пользователя. Смотрите консоль для подробностей."
 }

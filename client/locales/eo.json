@@ -394,5 +394,13 @@
   "protectTorrentUnprotectOk": "Bone",
   "torrentDownloadFailed": "Malsukcesis elŝuti torentan dosieron",
   "uploadFailedToProtect": "Torento alŝutita, sed malsukcesis protekti: {error}",
-  "downloadProtectedIncorrectPassword": "Malĝusta pasvorto. "
+  "downloadProtectedIncorrectPassword": "Malĝusta pasvorto. ",
+  "adminUnprotectedTorrents": "Ne protektitaj torentoj",
+  "protectTorrentRemoved": "Torenta protekto forigita",
+  "clear": "Vakigi",
+  "loading": "Ŝargante...",
+  "adminNoStatsAvailable": "Neniuj statistikoj disponeblaj",
+  "adminNoTorrentsFound": "Neniuj torentoj trovitaj",
+  "adminDeleteUserConfirm": "Ĉu vi certas, ke vi volas forigi la uzanton {username}?",
+  "adminDeleteUserFailed": "Ne eblis forigi la uzanton. Vidu la konzolon por detaloj."
 }

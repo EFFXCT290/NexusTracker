@@ -397,5 +397,13 @@
   "protectTorrentUnprotectOk": "DE ACUERDO",
   "torrentDownloadFailed": "No se pudo descargar el archivo torrent",
   "uploadFailedToProtect": "Torrent cargado, pero no pudo proteger: {error}",
-  "downloadProtectedIncorrectPassword": "Contraseña incorrecta. "
+  "downloadProtectedIncorrectPassword": "Contraseña incorrecta. ",
+  "adminUnprotectedTorrents": "Torrents no protegidos",
+  "protectTorrentRemoved": "Protección del torrent eliminada",
+  "clear": "Limpiar",
+  "loading": "Cargando...",
+  "adminNoStatsAvailable": "No hay estadísticas disponibles",
+  "adminNoTorrentsFound": "No se encontraron torrents",
+  "adminDeleteUserConfirm": "¿Está seguro de que desea eliminar al usuario {username}?",
+  "adminDeleteUserFailed": "No se pudo eliminar el usuario. Vea la consola para más detalles."
 }
