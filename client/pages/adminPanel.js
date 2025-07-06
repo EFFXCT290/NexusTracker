@@ -297,6 +297,8 @@ const AdminPanel = ({ token, userRole }) => {
         setProtectedTorrents((prev) => prev.filter(t => t.infoHash !== selectedTorrent.infoHash));
       }
     }
+    addNotification("success", getLocaleString("protectTorrentSuccess"));
+    addNotification("success", getLocaleString("protectTorrentRemoved"));
   };
 
   // Fetch logs for a given torrent
@@ -770,10 +772,10 @@ const AdminPanel = ({ token, userRole }) => {
               <StyledTable>
                 <thead>
                   <tr>
-                    <StyledTh>Name</StyledTh>
-                    <StyledTh>Uploaded</StyledTh>
-                    <StyledTh>Uploader</StyledTh>
-                    <StyledTh>Actions</StyledTh>
+                    <StyledTh>{getLocaleString("uploadName")}</StyledTh>
+                    <StyledTh>{getLocaleString("torrUploaded")}</StyledTh>
+                    <StyledTh>{getLocaleString("torrUploadedBy")}</StyledTh>
+                    <StyledTh>{getLocaleString("actions")}</StyledTh>
                   </tr>
                 </thead>
                 <tbody>
@@ -802,10 +804,10 @@ const AdminPanel = ({ token, userRole }) => {
               <StyledTable>
                 <thead>
                   <tr>
-                    <StyledTh>Name</StyledTh>
-                    <StyledTh>Uploaded</StyledTh>
-                    <StyledTh>Uploader</StyledTh>
-                    <StyledTh>Actions</StyledTh>
+                    <StyledTh>{getLocaleString("uploadName")}</StyledTh>
+                    <StyledTh>{getLocaleString("torrUploaded")}</StyledTh>
+                    <StyledTh>{getLocaleString("torrUploadedBy")}</StyledTh>
+                    <StyledTh>{getLocaleString("actions")}</StyledTh>
                   </tr>
                 </thead>
                 <tbody>
