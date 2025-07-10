@@ -288,6 +288,7 @@ const AdminPanel = ({ token, userRole }) => {
           ...prev.filter(t => t.infoHash !== selectedTorrent.infoHash)
         ]);
         setUnprotectedTorrents((prev) => prev.filter(t => t.infoHash !== selectedTorrent.infoHash));
+        addNotification("success", getLocaleString("protectTorrentSuccess"));
       } else {
         // Move to unprotected
         setUnprotectedTorrents((prev) => [
@@ -295,10 +296,9 @@ const AdminPanel = ({ token, userRole }) => {
           ...prev.filter(t => t.infoHash !== selectedTorrent.infoHash)
         ]);
         setProtectedTorrents((prev) => prev.filter(t => t.infoHash !== selectedTorrent.infoHash));
+        addNotification("success", getLocaleString("protectTorrentRemoved"));
       }
     }
-    addNotification("success", getLocaleString("protectTorrentSuccess"));
-    addNotification("success", getLocaleString("protectTorrentRemoved"));
   };
 
   // Fetch logs for a given torrent
@@ -479,7 +479,7 @@ const AdminPanel = ({ token, userRole }) => {
             onClick={() => handleTabChange('protected-torrents')}
           >
             <Lock size={16} style={{ marginRight: '8px' }} />
-            Protected Torrents
+            {getLocaleString('adminProtectedTorrents')}
           </TabButton>
         )}
         {/* End of Protect Torrent Feature */}

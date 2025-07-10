@@ -42,8 +42,7 @@ export const setTorrentProtection = async (req, res, next) => {
     await torrent.save();
 
     res.status(200).json({ 
-      success: true, 
-      message: isProtected ? "Torrent protected successfully" : "Torrent protection removed" 
+      success: true
     });
   } catch (error) {
     next(error);

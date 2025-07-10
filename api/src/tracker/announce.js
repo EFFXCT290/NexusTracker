@@ -231,7 +231,11 @@ const handleAnnounce = async (req, res) => {
   console.log(`[DEBUG] New upload total: ${updatedProgress.uploaded.total}`);
 
   if (params.event === "completed") {
-    await Torrent.findOneAndUpdate({ infoHash }, { $inc: { downloads: 1 } });
+    if (torrent.isProtected) {
+      await Torrent.findOneAndUpdate({ infoHash }, { $inc: { completedDownloads: 1 } });
+    } else {
+      await Torrent.findOneAndUpdate({ infoHash }, { $inc: { downloads: 1 } });
+    }
   }
 };
 

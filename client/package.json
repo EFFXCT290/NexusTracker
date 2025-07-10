@@ -1,6 +1,6 @@
 {
   "name": "@nexustracker/client",
-  "version": "1.8.1",
+  "version": "1.8.3",
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {

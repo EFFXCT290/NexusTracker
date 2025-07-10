@@ -121,7 +121,6 @@ const ProtectTorrentModal = ({
       });
       if (response.ok) {
         const result = await response.json();
-        addNotification("success", result.message || getLocaleString("protectTorrentAlreadyUnprotected"));
         onProtect({ isProtected: protectedState, password: protectedState ? password : undefined, shouldRefetch: true });
         onClose();
       } else {
@@ -148,7 +147,6 @@ const ProtectTorrentModal = ({
       });
       if (response.ok) {
         const result = await response.json();
-        addNotification("success", result.message || getLocaleString("protectTorrentAlreadyUnprotected"));
         onProtect({ isProtected: false });
         onClose();
       } else {
